@@ -96,53 +96,6 @@ In order to add a feature to gcloud-python-expenses-demo:
   "unnecessary" is of course subjective, but new dependencies should
   be discussed).
 
-Coding Style
-------------
-
-- PEP8 compliance, with exceptions defined in ``tox.ini``.
-  If you have ``tox`` installed, you can test that you have not introduced
-  any non-compliant code via::
-
-   $ tox -e lint
-
-Exceptions to PEP8:
-
-- Many unit tests use a helper method, ``_callFUT`` ("FUT" is short for
-  "Function-Under-Test"), which is PEP8-incompliant, but more readable.
-  Some also use a local variable, ``MUT`` (short for "Module-Under-Test").
-
-Running Tests
---------------
-
-- To run all tests for gcloud-python-expenses-demo on a single Python
-  version, run ``nosetests`` from your development virtualenv (See
-  *Using a Development Checkout* above).
-
-- To run the full set of gcloud-python-expenses-demo tests on all platforms,
-  install ``tox`` (http://codespeak.net/~hpk/tox/) into a system Python.
-  The ``tox`` console script will be installed into the scripts location
-  for that Python.  While ``cd``'ed to the gcloud-python-expenses-demo
-  checkout root directory (it contains ``tox.ini``), invoke the ``tox``
-  console script.  This will read the ``tox.ini`` file and execute the
-  tests on multiple Python versions and platforms; while it runs,
-  it creates a virtualenv for each version/platform combination.  For
-  example::
-
-   $ sudo /usr/bin/pip install tox
-   $ cd ~/hack-on-gcloud/
-   $ /usr/bin/tox
-
-
-Test Coverage
--------------
-
-- The codebase *must* have 100% test statement coverage after each commit.
-  You can test coverage via ``tox -e coverage``, or alternately by installing
-  ``nose`` and ``coverage`` into your virtualenv, and running
-  ``setup.py nosetests --with-coverage``.  If you have ``tox`` installed::
-
-   $ tox -e cover
-
 Documentation Coverage and Building HTML Documentation
 ------------------------------------------------------
 
@@ -172,11 +125,6 @@ using to develop gcloud-python-expenses-demo):
 
 3. Open the ``docs/_build/html/index.html`` file to see the resulting HTML
    rendering.
-
-As an alternative to 1. and 2. above, if you have ``tox`` installed, you
-can build the docs via::
-
-   $ tox -e docs
 
 Contributor License Agreements
 ------------------------------
