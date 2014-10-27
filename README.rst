@@ -1,8 +1,24 @@
-Google Cloud Python Client
-==========================
+Example App:  Expense Reporting Using the Google Cloud Python Client
+====================================================================
 
-Expense reports as an example demonstrating ``gcloud-python``, a Python
-idiomatic client for Google Cloud Platform services.
+This prjoect implements a simple, command-line expense reporting application
+as an example demonstrating ``gcloud-python``, a Python idiomatic client for
+Google Cloud Platform services.
+
+Installation
+------------
+
+First, create a virtual environment, and get the ``gcloud`` Python library
+installed into it.
+
+Then, install this project:
+
+.. code-block:: sh
+
+   $ cd /path/to/gcloud-python-expenses-demo
+   $ /path/to/virtualenv/bin/pip install -e .
+
+See the `narrative docs <docs/index.rst>`__ .
 
 Contributing
 ------------
