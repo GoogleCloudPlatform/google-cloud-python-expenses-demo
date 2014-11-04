@@ -1,0 +1,684 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cloud Datastore Narrative / Example Application &mdash; gcloud-python-expenses-demo 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="gcloud-python-expenses-demo 0.1 documentation" href="#" /> 
+  </head>
+  <body role="document" class="two-column docs"><a href="https://github.com/GoogleCloudPlatform/gcloud-python"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 999;" src="_static/forkme.png" alt="Fork me on GitHub"></a>
+    <div id="sandbar">
+      <header id="gc-googlebar">
+      <a id="gc-logo" href="#">
+        <img src="_static/cloudplatform-horizontal.png" alt="Google">
+        </a>
+        <form class="gc-search" action="search.html" method="GET">
+          <div class="searchbox" style="width: 429px;">
+            <span class="button button-blue mini">Google Cloud Python API</span>
+            <input type="hidden" name="check_keywords" value="yes">
+            <input type="hidden" name="area" value="default">
+            <input type="text" name="q" class="q" id="q" value=""
+              placeholder="Search" autocomplete="off" style="width: 263px;">
+          </div>
+          <button class="button button-blue" style="top: 0px; left: 444px;">
+          <img src="_static/search.png" alt="Search">
+        </button>
+
+        <input type="hidden" name="p" id="search_project" value="/compute">
+
+      </form>
+      </header>
+    </div>
+    
+<div id="gc-wrapper">
+  <div id="gc-appbar">
+    <h1><a href="#">gcloud-python-expenses-demo 0.1 documentation</a></h1>
+  </div>
+    <div id="gc-main" class="main">
+      <div id="gc-sidebar" class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<nav class="gc-toc">
+  <ul><li><a href="#">gCloud Documentation</a></li></ul>
+  <ul>
+<li><a class="reference internal" href="#">Cloud Datastore Narrative / Example Application</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#connecting-to-the-api-dataset">Connecting to the API Dataset</a></li>
+<li><a class="reference internal" href="#creating-a-new-expense-report">Creating a New Expense Report</a></li>
+<li><a class="reference internal" href="#updating-an-existing-expense-report">Updating an Existing Expense Report</a></li>
+<li><a class="reference internal" href="#deleting-an-existing-expense-report">Deleting an Existing Expense Report</a></li>
+<li><a class="reference internal" href="#listing-expense-reports">Listing Expense Reports</a></li>
+<li><a class="reference internal" href="#showing-an-expense-report">Showing an Expense Report</a></li>
+<li><a class="reference internal" href="#approving-an-expense-report">Approving an Expense Report</a></li>
+<li><a class="reference internal" href="#rejecting-an-expense-report">Rejecting an Expense Report</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav>
+
+            <h3>All API Docs</h3>
+            <nav class="gc-toc">
+            
+            </nav>
+            
+            
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main" id="gc-content">
+            
+  <div class="section" id="cloud-datastore-narrative-example-application">
+<h1>Cloud Datastore Narrative / Example Application<a class="headerlink" href="#cloud-datastore-narrative-example-application" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>In order to give a better feel for how a Python application might use the
+<tt class="xref py py-mod docutils literal"><span class="pre">gcloud.datastore</span></tt> API, let&#8217;s look at building an example application
+which stores its data using the API.  In order to focus on the API, the
+sample application will be built as a set of command-line scripts.</p>
+<p>For our example, let&#8217;s build an employee expense reporting system.  An example
+set of interactions might look like the following scenario.</p>
+<p>Returning from a trip to the Bay Area, Sally creates a CSV file,
+<tt class="docutils literal"><span class="pre">expenses-20140901.csv</span></tt>, containing one row for each line item in her
+expense report:</p>
+<div class="highlight-none"><div class="highlight"><pre>&quot;Date&quot;,&quot;Vendor&quot;,&quot;Type&quot;,&quot;Quantity&quot;,&quot;Price&quot;,&quot;Memo&quot;
+&quot;2014-08-26&quot;,&quot;United Airlines&quot;,&quot;Travel&quot;,1,425.00,&quot;Airfaire, IAD &lt;-&gt; SFO&quot;
+&quot;2014-08-27&quot;,&quot;Yellow Cab&quot;,&quot;Travel&quot;,32.00,&quot;Taxi to IAD&quot;
+...
+</pre></div>
+</div>
+<p>Sally then submits her expense report from the command line using our
+<strong class="program">submit_expenses</strong> script (see <a class="reference internal" href="#create-expense-report"><em>Creating a New Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>submit_expenses create --employee-id<span class="o">=</span>sally --description<span class="o">=</span><span class="s2">&quot;Frotz project kickoff, San Jose&quot;</span> expenses-20140901.csv
+Processed 15 rows.
+Created report: sally/expenses-20140901
+</pre></div>
+</div>
+<p>Sally can list all her submitted expense reports using our
+<strong class="program">review_expenses</strong> script (see <a class="reference internal" href="#list-expense-reports"><em>Listing Expense Reports</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses list --employee-id<span class="o">=</span>sally
+
+<span class="s2">&quot;Employee ID&quot;</span>, <span class="s2">&quot;Report ID&quot;</span>,<span class="s2">&quot;Created&quot;</span>,<span class="s2">&quot;Updated&quot;</span>,<span class="s2">&quot;Description&quot;</span>,<span class="s2">&quot;Status&quot;</span>,<span class="s2">&quot;Memo&quot;</span>
+<span class="s2">&quot;sally&quot;</span>,<span class="s2">&quot;expenses-2013-11-19&quot;</span>,<span class="s2">&quot;2013-12-01&quot;</span>,<span class="s2">&quot;2013-12-01&quot;</span>,<span class="s2">&quot;Onsite Training, Mountain View&quot;</span>,<span class="s2">&quot;Paid&quot;</span>,<span class="s2">&quot;Check #3715&quot;</span>
+<span class="s2">&quot;sally&quot;</span>,<span class="s2">&quot;expenses-2014-04-19&quot;</span>,<span class="s2">&quot;2014-04-21&quot;</span>,<span class="s2">&quot;2014-04-22&quot;</span>,<span class="s2">&quot;PyCon 2014, Montreal&quot;</span>,<span class="s2">&quot;Paid&quot;</span>,<span class="s2">&quot;Check #3992&quot;</span>
+<span class="s2">&quot;sally&quot;</span>,<span class="s2">&quot;expenses-2014-09-01&quot;</span>,<span class="s2">&quot;2014-09-04&quot;</span>,<span class="s2">&quot;2014-09-04&quot;</span>,<span class="s2">&quot;Frotz project kickoff, San Jose&quot;</span>,<span class="s2">&quot;pending&quot;</span>,<span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Sally can review a submitted expense report using the its ID
+(see <a class="reference internal" href="#show-expense-report"><em>Showing an Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses show sally expenses-20140901
+Employee-ID: sally
+Report-ID: expenses-20140901
+Report-Status: pending
+Created: 2014-09-04
+Updated: 2014-09-04
+Description: Frotz project kickoff, San Jose
+
+<span class="s2">&quot;Date&quot;</span>,<span class="s2">&quot;Vendor&quot;</span>,<span class="s2">&quot;Type&quot;</span>,<span class="s2">&quot;Quantity&quot;</span>,<span class="s2">&quot;Price&quot;</span>,<span class="s2">&quot;Memo&quot;</span>
+<span class="s2">&quot;2014-08-26&quot;</span>,<span class="s2">&quot;United Airlines&quot;</span>,<span class="s2">&quot;Travel&quot;</span>,1,425.00,<span class="s2">&quot;Airfaire, IAD &lt;-&gt; SFO&quot;</span>
+<span class="s2">&quot;2014-08-27&quot;</span>,<span class="s2">&quot;Yellow Cab&quot;</span>,<span class="s2">&quot;Travel&quot;</span>,32.00,<span class="s2">&quot;Taxi to IAD&quot;</span>
+...
+</pre></div>
+</div>
+<p>While in &#8220;pending&#8221; status, Sally can edit the CSV and resubmit it
+(see <a class="reference internal" href="#update-expense-report"><em>Updating an Existing Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>submit_expenses update expenses-20140901.csv
+Updated report: sally/expenses-20140901
+Processed 15 rows.
+</pre></div>
+</div>
+<p>While it remains in &#8220;pending&#8221; status, Sally can also delete the report
+(see <a class="reference internal" href="#delete-expense-report"><em>Deleting an Existing Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>submit_expenses delete expenses-20140901
+Deleted report: sally/expenses-20140901
+Removed 15 items.
+</pre></div>
+</div>
+<p>Sally&#8217;s boss, Pat, can review all open expense reports
+(see <a class="reference internal" href="#list-expense-reports"><em>Listing Expense Reports</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses list --status<span class="o">=</span>pending
+
+<span class="s2">&quot;Employee ID&quot;</span>,<span class="s2">&quot;Report ID&quot;</span>,<span class="s2">&quot;Created&quot;</span>,<span class="s2">&quot;Updated&quot;</span>,<span class="s2">&quot;Description&quot;</span>,<span class="s2">&quot;Status&quot;</span>,<span class="s2">&quot;Memo&quot;</span>
+<span class="s2">&quot;sally&quot;</span>,<span class="s2">&quot;expenses-2014-09-01&quot;</span>,<span class="s2">&quot;2014-09-04&quot;</span>,<span class="s2">&quot;2014-09-04&quot;</span>,<span class="s2">&quot;Frotz project kickoff, San Jose&quot;</span>,<span class="s2">&quot;pending&quot;</span>,<span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Pat can download Sally&#8217;s report
+(see <a class="reference internal" href="#show-expense-report"><em>Showing an Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses show sally expenses-20140901
+Report-ID: sally/expenses-20140901
+Report-Status: pending
+Employee-ID: sally
+Description: Frotz project kickoff, San Jose
+
+<span class="s2">&quot;Date&quot;</span>,<span class="s2">&quot;Vendor&quot;</span>,<span class="s2">&quot;Type&quot;</span>,<span class="s2">&quot;Quantity&quot;</span>,<span class="s2">&quot;Price&quot;</span>,<span class="s2">&quot;Memo&quot;</span>
+<span class="s2">&quot;2014-08-26&quot;</span>,<span class="s2">&quot;United Airlines&quot;</span>,<span class="s2">&quot;Travel&quot;</span>,1,425.00,<span class="s2">&quot;Airfaire, IAD &lt;-&gt; SFO&quot;</span>
+<span class="s2">&quot;2014-08-27&quot;</span>,<span class="s2">&quot;Yellow Cab&quot;</span>,<span class="s2">&quot;Travel&quot;</span>,32.00,<span class="s2">&quot;Taxi to IAD&quot;</span>
+</pre></div>
+</div>
+<p>Pat can approve Sally&#8217;s expense report
+(see <a class="reference internal" href="#approve-expense-report"><em>Approving an Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses approve --check-number<span class="o">=</span>4093 sally expenses-20140901
+Approved, report: sally/expenses-20140901, check <span class="c">#4093</span>
+</pre></div>
+</div>
+<p>or reject it
+(see <a class="reference internal" href="#reject-expense-report"><em>Rejecting an Expense Report</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses reject --reason<span class="o">=</span><span class="s2">&quot;Travel not authorized by client&quot;</span> sally expenses-20140901
+Rejected, report: sally/expenses-20140901, reason: Travel not authorized by client
+</pre></div>
+</div>
+</div>
+<div class="section" id="connecting-to-the-api-dataset">
+<h2>Connecting to the API Dataset<a class="headerlink" href="#connecting-to-the-api-dataset" title="Permalink to this headline">¶</a></h2>
+<p>The sample application uses a utility function, <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt>,
+to set up the connection.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_get_dataset</span><span class="p">():</span>
+    <span class="n">client_email</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_CLIENT_EMAIL&#39;</span><span class="p">]</span>
+    <span class="n">private_key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_KEY_FILE&#39;</span><span class="p">]</span>
+    <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_DATASET_ID&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">datastore</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">client_email</span><span class="p">,</span> <span class="n">private_key_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Thie function expects three environment variables to be set up, using
+your project&#8217;s
+<a class="reference external" href="https://developers.google.com/console/help/new/#generatingoauth2">OAuth2 API credentials</a>:</p>
+<ul class="simple">
+<li><span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_DATASET_ID</span></tt> is your Google API Project ID</li>
+<li><span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_CLIENT_EMAIL</span></tt> is your Google API email-address</li>
+<li><span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_TESTS_KEY_FILE</span></tt> is the filesystem path to your
+Google API private key.</li>
+</ul>
+</div>
+<div class="section" id="creating-a-new-expense-report">
+<span id="create-expense-report"></span><h2>Creating a New Expense Report<a class="headerlink" href="#creating-a-new-expense-report" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">create</span></tt> subcommand of the
+<strong class="program">submit_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.create_report()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DuplicateReport</span><span class="p">()</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">_upsert_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;pending&#39;</span>
+        <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">[</span><span class="s">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;created&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;updated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.create_report()</span></tt> starts a transaction (line 3) to ensure that
+all changes are performed atomically.  It then checks that no report exists
+already for the given employee ID and report ID, raising an exception if so
+(lines 4-5).  It then  delegates most of the work to the
+<tt class="xref py py-func docutils literal"><span class="pre">expenses._upsert_report()</span></tt> utility function (line 6), finally setting
+metadata on the report itself (lines 7-11).</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_upsert_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
+    <span class="n">_get_employee</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">)</span>  <span class="c"># force existence</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">)</span>
+    <span class="n">_purge_report_items</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
+    <span class="c"># Add items based on rows.</span>
+    <span class="n">report_path</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">key</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">report_path</span> <span class="o">+</span> <span class="p">[{</span><span class="s">&#39;kind&#39;</span><span class="p">:</span> <span class="s">&#39;Expense Item&#39;</span><span class="p">,</span> <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s">&#39;Expense Item&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">item</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">report</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._upsert_report()</span></tt> function: in turn delegates to
+<tt class="xref py py-func docutils literal"><span class="pre">expenses._get_employee()</span></tt>, <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_report()</span></tt>, and
+<tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> to ensure that the employee and report
+exist, and that the report contains no items (lines 2-4).  It then
+iterates over the rows from the CSV file, creating an item for each row
+(lines 5-13), finally returning the populated report object (line 14).</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_get_employee</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span><span class="s">&#39;kind&#39;</span><span class="p">:</span> <span class="s">&#39;Employee&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">employee_id</span><span class="p">},</span>
+        <span class="p">])</span>
+    <span class="n">employee</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_entity</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">employee</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">create</span><span class="p">:</span>
+        <span class="n">employee</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;Employee&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">employee</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">employee</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_employee()</span></tt> function: looks up an employee (lines 2-3).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Employee entities have no &#8220;parent&#8221; object: they exist at the &#8220;top&#8221;
+level.</p>
+</div>
+<p>If the employee entity does not exist, and the caller requests it, the
+function creates a new employee entity and saves it.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span><span class="s">&#39;kind&#39;</span><span class="p">:</span> <span class="s">&#39;Employee&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">employee_id</span><span class="p">},</span>
+        <span class="p">{</span><span class="s">&#39;kind&#39;</span><span class="p">:</span> <span class="s">&#39;Expense Report&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">report_id</span><span class="p">},</span>
+        <span class="p">])</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_entity</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">create</span><span class="p">:</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;Report&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">report</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_employee()</span></tt> function: looks up an expense report
+using an <a class="reference external" href="https://cloud.google.com/datastore/docs/concepts/queries#Datastore_Ancestor_queries">&#8220;ancestor&#8221; query</a>
+(lines 2-3).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Each expense report entity is expected to have an employee entity
+as its &#8220;parent&#8221;.</p>
+</div>
+<p>If the expense report entity does not exist, and the caller requests it, the
+function creates a new expense report entity and saves it.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_purge_report_items</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="c"># Delete any existing items belonging to report</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_fetch_report_items</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">count</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> function: delegates to
+<tt class="xref py py-func docutils literal"><span class="pre">expenses._fetch_report_items()</span></tt> to find expense item entities contained
+within the given report (line 4), and deletes them (line 5).  It returns
+a count of the deleted items.</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_fetch_report_items</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="s">&#39;Expense Item&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">ancestor</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">key</span><span class="p">())</span><span class="o">.</span><span class="n">fetch</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">item</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> function: performs an &#8220;ancestor&#8221;
+query (lines 2-3) to find expense item entities contained within a given
+expense report.</p>
+</div>
+<div class="section" id="updating-an-existing-expense-report">
+<span id="update-expense-report"></span><h2>Updating an Existing Expense Report<a class="headerlink" href="#updating-an-existing-expense-report" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">update</span></tt> subcommand of the
+<strong class="program">submit_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.update_report()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">update_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoSuchReport</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;pending&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadReportStatus</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">])</span>
+        <span class="n">_upsert_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">[</span><span class="s">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;updated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.update_report()</span></tt> starts a transaction (line 3) to ensure that
+all changes are performed atomically.  It then checks that a report <em>does</em>
+exist already for the given employee ID and report ID, and that it is in
+<tt class="docutils literal"><span class="pre">pending</span></tt> status, raising an exception if not (lines 4-5).  It then
+delegates most of the work to the <tt class="xref py py-func docutils literal"><span class="pre">expenses._upsert_report()</span></tt> utility
+function (line 6), finally updating metadata on the report itself (lines 7-11).</p>
+</div>
+<div class="section" id="deleting-an-existing-expense-report">
+<span id="delete-expense-report"></span><h2>Deleting an Existing Expense Report<a class="headerlink" href="#deleting-an-existing-expense-report" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">delete</span></tt> subcommand of the
+<strong class="program">submit_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.delete_report()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">force</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoSuchReport</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;pending&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadReportStatus</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">])</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">_purge_report_items</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">count</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.delete_report()</span></tt> starts a transaction (line 3) to ensure that
+all changes are performed atomically.  It then checks that a report <em>does</em>
+exist already for the given employee ID and report ID (lines 4-6), and that
+it is in <tt class="docutils literal"><span class="pre">pending</span></tt> status (lines 7-8), raising an exception if either is
+false.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The function takes a <tt class="docutils literal"><span class="pre">force</span></tt> argument:  if true, it will delete the
+report even if it is not in <tt class="docutils literal"><span class="pre">pending</span></tt> status.</p>
+</div>
+<p>The function then delegates to <tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> to
+delete expense item entities contained in the report (line 9), and then
+deletes the report itself (line 10).  Finally, it returns a count of the
+deleted items.</p>
+</div>
+<div class="section" id="listing-expense-reports">
+<span id="list-expense-reports"></span><h2>Listing Expense Reports<a class="headerlink" href="#listing-expense-reports" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">list</span></tt> subcommand of the
+<strong class="program">review_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.list_reports()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_reports</span><span class="p">(</span><span class="n">employee_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="s">&#39;Expense Report&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">employee_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="p">[{</span><span class="s">&#39;kind&#39;</span><span class="p">:</span> <span class="s">&#39;Employee&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">employee_id</span><span class="p">}])</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">ancestor</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s">&#39;status =&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">fetch</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">_report_info</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.list_reports()</span></tt> creates a <tt class="xref py py-class docutils literal"><span class="pre">Query</span></tt>
+instance, limited to entities of kind, <tt class="docutils literal"><span class="pre">Expense</span> <span class="pre">Report</span></tt> (line 3), and
+applies filtering based on the passed criteria:</p>
+<ul class="simple">
+<li>If <tt class="docutils literal"><span class="pre">employee_id</span></tt> is passed, it adds an &#8220;ancestor&#8221; filter to
+restrict the results to expense reports contained in the given employee
+(lines 4-6).</li>
+<li>If <tt class="docutils literal"><span class="pre">status</span></tt> is passed, it adds an &#8220;attribute&#8221; filter to
+restrict the results to expense reports which have that status (lines 7-8).</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The function does <em>not</em> set up a transaction, as it uses only
+&#8220;read&#8221; operations on the API.</p>
+</div>
+<p>Finally, the function fetches the expense report entities returned by
+the query and iterates over them, passing each to
+<tt class="xref py py-func docutils literal"><span class="pre">expenses._report_info()</span></tt> and yielding the mapping it returns.
+report (lines 9-10).</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_report_info</span><span class="p">(</span><span class="n">report</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">key</span><span class="p">()</span><span class="o">.</span><span class="n">path</span><span class="p">()</span>
+    <span class="n">employee_id</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">report_id</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">created</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;created&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%Y-%m-</span><span class="si">%d</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="n">updated</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;updated&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&#39;%Y-%m-</span><span class="si">%d</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;paid&#39;</span><span class="p">:</span>
+        <span class="n">memo</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;check_number&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s">&#39;rejected&#39;</span><span class="p">:</span>
+        <span class="n">memo</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;rejected_reason&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">memo</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">&#39;employee_id&#39;</span><span class="p">:</span> <span class="n">employee_id</span><span class="p">,</span>
+        <span class="s">&#39;report_id&#39;</span><span class="p">:</span> <span class="n">report_id</span><span class="p">,</span>
+        <span class="s">&#39;created&#39;</span><span class="p">:</span> <span class="n">created</span><span class="p">,</span>
+        <span class="s">&#39;updated&#39;</span><span class="p">:</span> <span class="n">updated</span><span class="p">,</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+        <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+        <span class="s">&#39;memo&#39;</span><span class="p">:</span> <span class="n">memo</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._report_info()</span></tt> utility function uses the expense report
+entity&#8217;s key to determine the report&#8217;s employee ID (line 3), and its
+report ID (line 4).  It then uses these values and the entityy&#8217;s properties
+to generate and return a mapping describing the report (lines 5-22).</p>
+</div>
+<div class="section" id="showing-an-expense-report">
+<span id="show-expense-report"></span><h2>Showing an Expense Report<a class="headerlink" href="#showing-an-expense-report" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">show</span></tt> subcommand of the
+<strong class="program">review_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.get_report_info()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_report_info</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoSuchReport</span><span class="p">()</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">_report_info</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="n">info</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_fetch_report_items</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">report</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">info</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.get_report_info()</span></tt> uses <tt class="xref py py-func docutils literal"><span class="pre">exenses._get_report()</span></tt> to fetch
+the expense report entity for the given employee ID and report ID (line 3),
+raising an exeception if the report does not exist (line 4):</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The function does <em>not</em> set up a transaction, as it uses only
+&#8220;read&#8221; operations on the API.</p>
+</div>
+<p>The function delegates to <tt class="xref py py-func docutils literal"><span class="pre">expenses._report_info()</span></tt> to get a mapping
+describing the report (line 6), and then delegates to
+<tt class="xref py py-func docutils literal"><span class="pre">expenses._fetch_report_items()</span></tt> to retrieve information about the
+expense item entities contained in the report (line 7).  Finally, the
+function returns the mapping.</p>
+</div>
+<div class="section" id="approving-an-expense-report">
+<span id="approve-expense-report"></span><h2>Approving an Expense Report<a class="headerlink" href="#approving-an-expense-report" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">approve</span></tt> subcommand of the
+<strong class="program">review_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.approve_report()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">approve_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">check_number</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoSuchReport</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;pending&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadReportStatus</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">])</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;updated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;paid&#39;</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;check_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_number</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.approve_report()</span></tt> starts a transaction (line 3) to ensure that
+all changes are performed atomically.  It then checks that a report <em>does</em>
+exist already for the given employee ID and report ID, and that it is in
+<tt class="docutils literal"><span class="pre">pending</span></tt> status, raising an exception if not (lines 4-5).  It then updates
+the status and other metadata on the report itself (lines 9-12).</p>
+</div>
+<div class="section" id="rejecting-an-expense-report">
+<span id="reject-expense-report"></span><h2>Rejecting an Expense Report<a class="headerlink" href="#rejecting-an-expense-report" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <tt class="docutils literal"><span class="pre">reject</span></tt> subcommand of the
+<strong class="program">review_expenses</strong> script drives a function,
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.reject_report()</span></tt>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">reject_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">reason</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoSuchReport</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;pending&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadReportStatus</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">])</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;updated&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;rejected&#39;</span>
+        <span class="n">report</span><span class="p">[</span><span class="s">&#39;reason&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
+<tt class="xref py py-func docutils literal"><span class="pre">expenses.approve_report()</span></tt> starts a transaction (line 3) to ensure that
+all changes are performed atomically.  It then checks that a report <em>does</em>
+exist already for the given employee ID and report ID, and that it is in
+<tt class="docutils literal"><span class="pre">pending</span></tt> status, raising an exception if not (lines 4-5).  It then updates
+the status and other metadata on the report itself (lines 9-12).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    </div>
+  </div>
+    <footer id="gc-footer" class="footer" role="contentinfo">
+    <div id="gc-copyright">
+        &copy; Copyright 2014, JJ Geewax.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      </div>
+    </footer>
+  </body>
+</html>
