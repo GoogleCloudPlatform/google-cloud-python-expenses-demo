@@ -15,6 +15,7 @@ setup(
         'console_scripts': [
             'submit_expenses = gcloud_expenses.scripts.submit_expenses:main',
             'review_expenses = gcloud_expenses.scripts.review_expenses:main',
+            'expense_receipts = gcloud_expenses.scripts.expense_receipts:main',
         ],
     },
 )

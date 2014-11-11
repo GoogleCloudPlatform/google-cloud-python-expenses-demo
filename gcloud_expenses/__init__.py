@@ -19,6 +19,10 @@ class BadReportStatus(Exception):
     """Attempt to update / delete an already-approved/rejected report."""
 
 
+class NoSuchReceipt(Exception):
+    """Attempt to download a receipt which does not already exist."""
+
+
 def _get_dataset():
     client_email = os.environ['GCLOUD_TESTS_CLIENT_EMAIL']
     private_key_path = os.environ['GCLOUD_TESTS_KEY_FILE']
@@ -195,12 +199,12 @@ def reject_report(employee_id, report_id, reason):
         report.save()
 
 
-def upload_receipt(employee_id, report_id, filename, fileobj):
+def upload_receipt(employee_id, report_id, filename):
     pass
 
 
 def list_receipts(employee_id, report_id):
-    pass
+    return ()
 
 
 def download_receipt(employee_id, report_id, filename):

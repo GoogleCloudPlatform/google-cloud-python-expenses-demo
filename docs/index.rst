@@ -23,33 +23,6 @@ expense report:
    "2014-08-27","Yellow Cab","Travel",32.00,"Taxi to IAD"
    ...
 
-Sally can upload photos of receitps for her expense report using our
-:program:`expense_receipts` script (see :ref:`upload-expense-receipts`):
-
-.. code-block:: bash
-
-   $ expense_receipts upload --employee-id=sally --report-id=expenses-20140901 yellow_cab-20140827.jpg
-   Uploaded receipt: sally/expenses-20140901/yellow_cab-20140827.jpg
-
-Sally can list receipts for her expense report
-(see :ref:`list-expense-receipts`):
-
-.. code-block:: bash
-
-   $ expense_receipts list --employee-id=sally --report-id=expenses-20140901
-   Employee-ID: sally
-   Report-ID: expenses-20140901
-
-   yellow_cab-20140827.jpg
-
-and download one of them
-(see :ref:`download-expense-receipts`):
-
-.. code-block:: bash
-
-   $ expense_receipts download --employee-id=sally --report-id=expenses-20140901 yellow_cab-20140827.jpg
-   Saved to file:  yellow_cab-20140827.jpg
-
 Sally then submits her expense report from the command line using our
 :program:`submit_expenses` script (see :ref:`create-expense-report`):
 
@@ -58,6 +31,35 @@ Sally then submits her expense report from the command line using our
    $ submit_expenses create --employee-id=sally --description="Frotz project kickoff, San Jose" expenses-20140901.csv
    Processed 15 rows.
    Created report: sally/expenses-20140901
+
+Sally can upload photos of receipts for her expense report using our
+:program:`expense_receipts` script (see :ref:`upload-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts upload sally expenses-20140901 yellow_cab-20140827.jpg
+   Employee-ID: sally
+   Report-ID: expenses-20140901
+
+   Uploaded: sally/expenses-20140901/yellow_cab-20140827.jpg
+
+Sally can list receipts for her expense report
+(see :ref:`list-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts list sally expenses-20140901
+   Employee-ID: sally
+   Report-ID: expenses-20140901
+
+   Receipt: yellow_cab-20140827.jpg
+
+and download one of them (see :ref:`download-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts download sally expenses-20140901 yellow_cab-20140827.jpg
+   Saved to file:  yellow_cab-20140827.jpg
 
 Sally can list all her submitted expense reports using our
 :program:`review_expenses` script (see :ref:`list-expense-reports`):
