@@ -278,7 +278,7 @@ class ReviewExpenses(object):
             command()
 
     def _print(self, text):  # pragma NO COVERAGE
-        sys.stdout.write('%s/n' % text)
+        sys.stdout.write('%s\n' % text)
 
     def error(self, text):
         self.logger(text)
