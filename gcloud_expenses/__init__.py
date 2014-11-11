@@ -193,3 +193,15 @@ def reject_report(employee_id, report_id, reason):
         report['status'] = 'rejected'
         report['reason'] = reason
         report.save()
+
+
+def upload_receipt(employee_id, report_id, filename, fileobj):
+    pass
+
+
+def list_receipts(employee_id, report_id):
+    pass
+
+
+def download_receipt(employee_id, report_id, filename):
+    pass

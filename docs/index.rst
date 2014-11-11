@@ -23,6 +23,33 @@ expense report:
    "2014-08-27","Yellow Cab","Travel",32.00,"Taxi to IAD"
    ...
 
+Sally can upload photos of receitps for her expense report using our
+:program:`expense_receipts` script (see :ref:`upload-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts upload --employee-id=sally --report-id=expenses-20140901 yellow_cab-20140827.jpg
+   Uploaded receipt: sally/expenses-20140901/yellow_cab-20140827.jpg
+
+Sally can list receipts for her expense report
+(see :ref:`list-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts list --employee-id=sally --report-id=expenses-20140901
+   Employee-ID: sally
+   Report-ID: expenses-20140901
+
+   yellow_cab-20140827.jpg
+
+and download one of them
+(see :ref:`download-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts download --employee-id=sally --report-id=expenses-20140901 yellow_cab-20140827.jpg
+   Saved to file:  yellow_cab-20140827.jpg
+
 Sally then submits her expense report from the command line using our
 :program:`submit_expenses` script (see :ref:`create-expense-report`):
 
@@ -383,3 +410,42 @@ ensure that all changes are performed atomically.  It then checks that a
 report *does* exist already for the given employee ID and report ID, and that
 it is in ``pending`` status, raising an exception if not (lines 4-5).  It then
 updates the status and other metadata on the report itself (lines 9-12).
+
+.. _upload-expense-receipts:
+
+Uploading Expense Receipts
+--------------------------
+
+In the sample application, the ``upload`` subcommand of the
+:program:`expense_receipts` script drives a function,
+:func:`gcloud_expenses.upload_receipt`:
+
+.. literalinclude:: ../gcloud_expenses/__init__.py
+   :pyobject: upload_receipt
+   :linenos:
+
+.. _list-expense-receipts:
+
+Listing Expense Receipts
+------------------------
+
+In the sample application, the ``list`` subcommand of the
+:program:`expense_receipts` script drives a function,
+:func:`gcloud_expenses.list_receipts`:
+
+.. literalinclude:: ../gcloud_expenses/__init__.py
+   :pyobject: list_receipts
+   :linenos:
+
+.. _download-expense-receipts:
+
+Downloading Expense Receipts
+----------------------------
+
+In the sample application, the ``download`` subcommand of the
+:program:`expense_receipts` script drives a function,
+:func:`gcloud_expenses.download_receipt`:
+
+.. literalinclude:: ../gcloud_expenses/__init__.py
+   :pyobject: download_receipt
+   :linenos:
