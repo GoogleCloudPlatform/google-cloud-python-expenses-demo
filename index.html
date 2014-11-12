@@ -72,6 +72,10 @@
 <li><a class="reference internal" href="#showing-an-expense-report">Showing an Expense Report</a></li>
 <li><a class="reference internal" href="#approving-an-expense-report">Approving an Expense Report</a></li>
 <li><a class="reference internal" href="#rejecting-an-expense-report">Rejecting an Expense Report</a></li>
+<li><a class="reference internal" href="#uploading-expense-receipts">Uploading Expense Receipts</a></li>
+<li><a class="reference internal" href="#listing-expense-receipts">Listing Expense Receipts</a></li>
+<li><a class="reference internal" href="#downloading-expense-receipts">Downloading Expense Receipts</a></li>
+<li><a class="reference internal" href="#deleting-expense-receipts">Deleting Expense Receipts</a></li>
 </ul>
 </li>
 </ul>
@@ -97,13 +101,13 @@
 <div class="section" id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>In order to give a better feel for how a Python application might use the
-<tt class="xref py py-mod docutils literal"><span class="pre">gcloud.datastore</span></tt> API, let&#8217;s look at building an example application
+<code class="xref py py-mod docutils literal"><span class="pre">gcloud.datastore</span></code> API, let&#8217;s look at building an example application
 which stores its data using the API.  In order to focus on the API, the
 sample application will be built as a set of command-line scripts.</p>
 <p>For our example, let&#8217;s build an employee expense reporting system.  An example
 set of interactions might look like the following scenario.</p>
 <p>Returning from a trip to the Bay Area, Sally creates a CSV file,
-<tt class="docutils literal"><span class="pre">expenses-20140901.csv</span></tt>, containing one row for each line item in her
+<code class="docutils literal"><span class="pre">expenses-20140901.csv</span></code>, containing one row for each line item in her
 expense report:</p>
 <div class="highlight-none"><div class="highlight"><pre>&quot;Date&quot;,&quot;Vendor&quot;,&quot;Type&quot;,&quot;Quantity&quot;,&quot;Price&quot;,&quot;Memo&quot;
 &quot;2014-08-26&quot;,&quot;United Airlines&quot;,&quot;Travel&quot;,1,425.00,&quot;Airfaire, IAD &lt;-&gt; SFO&quot;
@@ -114,8 +118,36 @@ expense report:</p>
 <p>Sally then submits her expense report from the command line using our
 <strong class="program">submit_expenses</strong> script (see <a class="reference internal" href="#create-expense-report"><em>Creating a New Expense Report</em></a>):</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>submit_expenses create --employee-id<span class="o">=</span>sally --description<span class="o">=</span><span class="s2">&quot;Frotz project kickoff, San Jose&quot;</span> expenses-20140901.csv
-Processed 15 rows.
+Processed <span class="m">15</span> rows.
 Created report: sally/expenses-20140901
+</pre></div>
+</div>
+<p>Sally can upload photos of receipts for her expense report using our
+<strong class="program">expense_receipts</strong> script (see <a class="reference internal" href="#upload-expense-receipts"><em>Uploading Expense Receipts</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>expense_receipts upload sally expenses-20140901 yellow_cab-20140827.jpg
+Employee-ID: sally
+Report-ID: expenses-20140901
+
+Uploaded: sally/expenses-20140901/yellow_cab-20140827.jpg
+</pre></div>
+</div>
+<p>Sally can list receipts for her expense report
+(see <a class="reference internal" href="#list-expense-receipts"><em>Listing Expense Receipts</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>expense_receipts list sally expenses-20140901
+Employee-ID: sally
+Report-ID: expenses-20140901
+
+Receipt: yellow_cab-20140827.jpg
+</pre></div>
+</div>
+<p>and download one of them (see <a class="reference internal" href="#download-expense-receipts"><em>Downloading Expense Receipts</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>expense_receipts download sally expenses-20140901 yellow_cab-20140827.jpg
+Saved to file:  yellow_cab-20140827.jpg
+</pre></div>
+</div>
+<p>or delete one of them (see <a class="reference internal" href="#delete-expense-receipts"><em>Deleting Expense Receipts</em></a>):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>expense_receipts delete sally expenses-20140901 yellow_cab-20140827.jpg
+Deleted:  yellow_cab-20140827.jpg
 </pre></div>
 </div>
 <p>Sally can list all her submitted expense reports using our
@@ -148,14 +180,14 @@ Description: Frotz project kickoff, San Jose
 (see <a class="reference internal" href="#update-expense-report"><em>Updating an Existing Expense Report</em></a>):</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>submit_expenses update expenses-20140901.csv
 Updated report: sally/expenses-20140901
-Processed 15 rows.
+Processed <span class="m">15</span> rows.
 </pre></div>
 </div>
 <p>While it remains in &#8220;pending&#8221; status, Sally can also delete the report
 (see <a class="reference internal" href="#delete-expense-report"><em>Deleting an Existing Expense Report</em></a>):</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>submit_expenses delete expenses-20140901
 Deleted report: sally/expenses-20140901
-Removed 15 items.
+Removed <span class="m">15</span> items.
 </pre></div>
 </div>
 <p>Sally&#8217;s boss, Pat, can review all open expense reports
@@ -181,7 +213,7 @@ Description: Frotz project kickoff, San Jose
 </div>
 <p>Pat can approve Sally&#8217;s expense report
 (see <a class="reference internal" href="#approve-expense-report"><em>Approving an Expense Report</em></a>):</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses approve --check-number<span class="o">=</span>4093 sally expenses-20140901
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>review_expenses approve --check-number<span class="o">=</span><span class="m">4093</span> sally expenses-20140901
 Approved, report: sally/expenses-20140901, check <span class="c">#4093</span>
 </pre></div>
 </div>
@@ -194,8 +226,8 @@ Rejected, report: sally/expenses-20140901, reason: Travel not authorized by clie
 </div>
 <div class="section" id="connecting-to-the-api-dataset">
 <h2>Connecting to the API Dataset<a class="headerlink" href="#connecting-to-the-api-dataset" title="Permalink to this headline">¶</a></h2>
-<p>The sample application uses a utility function, <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt>,
-to set up the connection.</p>
+<p>The sample application uses a utility function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code>, to set up the connection.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_get_dataset</span><span class="p">():</span>
     <span class="n">client_email</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_CLIENT_EMAIL&#39;</span><span class="p">]</span>
     <span class="n">private_key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_KEY_FILE&#39;</span><span class="p">]</span>
@@ -204,20 +236,19 @@ to set up the connection.</p>
 </pre></div>
 </div>
 <p>Thie function expects three environment variables to be set up, using
-your project&#8217;s
-<a class="reference external" href="https://developers.google.com/console/help/new/#generatingoauth2">OAuth2 API credentials</a>:</p>
+your project&#8217;s <a class="reference external" href="https://developers.google.com/console/help/new/#generatingoauth2">OAuth2 API credentials</a>:</p>
 <ul class="simple">
-<li><span class="target" id="index-0"></span><tt class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_DATASET_ID</span></tt> is your Google API Project ID</li>
-<li><span class="target" id="index-1"></span><tt class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_CLIENT_EMAIL</span></tt> is your Google API email-address</li>
-<li><span class="target" id="index-2"></span><tt class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_TESTS_KEY_FILE</span></tt> is the filesystem path to your
+<li><span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_DATASET_ID</span></code> is your Google API Project ID</li>
+<li><span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_CLIENT_EMAIL</span></code> is your Google API email-address</li>
+<li><span class="target" id="index-2"></span><code class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_TESTS_KEY_FILE</span></code> is the filesystem path to your
 Google API private key.</li>
 </ul>
 </div>
 <div class="section" id="creating-a-new-expense-report">
 <span id="create-expense-report"></span><h2>Creating a New Expense Report<a class="headerlink" href="#creating-a-new-expense-report" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">create</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">create</span></code> subcommand of the
 <strong class="program">submit_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.create_report()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.create_report()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -241,13 +272,13 @@ Google API private key.</li>
         <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.create_report()</span></tt> starts a transaction (line 3) to ensure that
-all changes are performed atomically.  It then checks that no report exists
-already for the given employee ID and report ID, raising an exception if so
-(lines 4-5).  It then  delegates most of the work to the
-<tt class="xref py py-func docutils literal"><span class="pre">expenses._upsert_report()</span></tt> utility function (line 6), finally setting
-metadata on the report itself (lines 7-11).</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.create_report()</span></code> starts a transaction (line 3) to
+ensure that all changes are performed atomically.  It then checks that no
+report exists already for the given employee ID and report ID, raising an
+exception if so (lines 4-5).  It then  delegates most of the work to the
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._upsert_report()</span></code> utility function (line 6), finally
+setting metadata on the report itself (lines 7-11).</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -277,12 +308,12 @@ metadata on the report itself (lines 7-11).</p>
     <span class="k">return</span> <span class="n">report</span>
 </pre></div>
 </td></tr></table></div>
-<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._upsert_report()</span></tt> function: in turn delegates to
-<tt class="xref py py-func docutils literal"><span class="pre">expenses._get_employee()</span></tt>, <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_report()</span></tt>, and
-<tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> to ensure that the employee and report
-exist, and that the report contains no items (lines 2-4).  It then
-iterates over the rows from the CSV file, creating an item for each row
-(lines 5-13), finally returning the populated report object (line 14).</p>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._upsert_report()</span></code> function: in turn delegates to
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_employee()</span></code>, <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_report()</span></code>,
+and <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._purge_report_items()</span></code> to ensure that the employee
+and report exist, and that the report contains no items (lines 2-4).  It then
+iterates over the rows from the CSV file, creating an item for each row (lines
+5-13), finally returning the populated report object (line 14).</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -302,7 +333,8 @@ iterates over the rows from the CSV file, creating an item for each row
     <span class="k">return</span> <span class="n">employee</span>
 </pre></div>
 </td></tr></table></div>
-<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_employee()</span></tt> function: looks up an employee (lines 2-3).</p>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_employee()</span></code> function: looks up an employee
+(lines 2-3).</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Employee entities have no &#8220;parent&#8221; object: they exist at the &#8220;top&#8221;
@@ -331,7 +363,7 @@ function creates a new employee entity and saves it.</p>
     <span class="k">return</span> <span class="n">report</span>
 </pre></div>
 </td></tr></table></div>
-<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_employee()</span></tt> function: looks up an expense report
+<p>The <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_employee()</span></code> function: looks up an expense report
 using an <a class="reference external" href="https://cloud.google.com/datastore/docs/concepts/queries#Datastore_Ancestor_queries">&#8220;ancestor&#8221; query</a>
 (lines 2-3).</p>
 <div class="admonition note">
@@ -356,10 +388,10 @@ function creates a new expense report entity and saves it.</p>
     <span class="k">return</span> <span class="n">count</span>
 </pre></div>
 </td></tr></table></div>
-<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> function: delegates to
-<tt class="xref py py-func docutils literal"><span class="pre">expenses._fetch_report_items()</span></tt> to find expense item entities contained
-within the given report (line 4), and deletes them (line 5).  It returns
-a count of the deleted items.</p>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._purge_report_items()</span></code> function: delegates to
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._fetch_report_items()</span></code> to find expense item entities
+contained within the given report (line 4), and deletes them (line 5).  It
+returns a count of the deleted items.</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -369,15 +401,15 @@ a count of the deleted items.</p>
         <span class="k">yield</span> <span class="n">item</span>
 </pre></div>
 </td></tr></table></div>
-<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> function: performs an &#8220;ancestor&#8221;
-query (lines 2-3) to find expense item entities contained within a given
-expense report.</p>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._purge_report_items()</span></code> function: performs an
+&#8220;ancestor&#8221; query (lines 2-3) to find expense item entities contained within a
+given expense report.</p>
 </div>
 <div class="section" id="updating-an-existing-expense-report">
 <span id="update-expense-report"></span><h2>Updating an Existing Expense Report<a class="headerlink" href="#updating-an-existing-expense-report" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">update</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">update</span></code> subcommand of the
 <strong class="program">submit_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.update_report()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.update_report()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -405,19 +437,20 @@ expense report.</p>
         <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.update_report()</span></tt> starts a transaction (line 3) to ensure that
-all changes are performed atomically.  It then checks that a report <em>does</em>
-exist already for the given employee ID and report ID, and that it is in
-<tt class="docutils literal"><span class="pre">pending</span></tt> status, raising an exception if not (lines 4-5).  It then
-delegates most of the work to the <tt class="xref py py-func docutils literal"><span class="pre">expenses._upsert_report()</span></tt> utility
-function (line 6), finally updating metadata on the report itself (lines 7-11).</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.update_report()</span></code> starts a transaction (line 3) to
+ensure that all changes are performed atomically.  It then checks that a
+report <em>does</em> exist already for the given employee ID and report ID, and that
+it is in <code class="docutils literal"><span class="pre">pending</span></code> status, raising an exception if not (lines 4-5).  It then
+delegates most of the work to the <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._upsert_report()</span></code>
+utility function (line 6), finally updating metadata on the report itself
+(lines 7-11).</p>
 </div>
 <div class="section" id="deleting-an-existing-expense-report">
 <span id="delete-expense-report"></span><h2>Deleting an Existing Expense Report<a class="headerlink" href="#deleting-an-existing-expense-report" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">delete</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">delete</span></code> subcommand of the
 <strong class="program">submit_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.delete_report()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.delete_report()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -441,27 +474,27 @@ function (line 6), finally updating metadata on the report itself (lines 7-11).<
     <span class="k">return</span> <span class="n">count</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.delete_report()</span></tt> starts a transaction (line 3) to ensure that
-all changes are performed atomically.  It then checks that a report <em>does</em>
-exist already for the given employee ID and report ID (lines 4-6), and that
-it is in <tt class="docutils literal"><span class="pre">pending</span></tt> status (lines 7-8), raising an exception if either is
-false.</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.delete_report()</span></code> starts a transaction (line 3) to
+ensure that all changes are performed atomically.  It then checks that a
+report <em>does</em> exist already for the given employee ID and report ID (lines
+4-6), and that it is in <code class="docutils literal"><span class="pre">pending</span></code> status (lines 7-8), raising an exception
+if either is false.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The function takes a <tt class="docutils literal"><span class="pre">force</span></tt> argument:  if true, it will delete the
-report even if it is not in <tt class="docutils literal"><span class="pre">pending</span></tt> status.</p>
+<p class="last">The function takes a <code class="docutils literal"><span class="pre">force</span></code> argument:  if true, it will delete the
+report even if it is not in <code class="docutils literal"><span class="pre">pending</span></code> status.</p>
 </div>
-<p>The function then delegates to <tt class="xref py py-func docutils literal"><span class="pre">expenses._purge_report_items()</span></tt> to
+<p>The function then delegates to <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._purge_report_items()</span></code> to
 delete expense item entities contained in the report (line 9), and then
 deletes the report itself (line 10).  Finally, it returns a count of the
 deleted items.</p>
 </div>
 <div class="section" id="listing-expense-reports">
 <span id="list-expense-reports"></span><h2>Listing Expense Reports<a class="headerlink" href="#listing-expense-reports" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">list</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">list</span></code> subcommand of the
 <strong class="program">review_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.list_reports()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.list_reports()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -483,15 +516,16 @@ deleted items.</p>
         <span class="k">yield</span> <span class="n">_report_info</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.list_reports()</span></tt> creates a <tt class="xref py py-class docutils literal"><span class="pre">Query</span></tt>
-instance, limited to entities of kind, <tt class="docutils literal"><span class="pre">Expense</span> <span class="pre">Report</span></tt> (line 3), and
-applies filtering based on the passed criteria:</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.list_reports()</span></code> creates a
+<code class="xref py py-class docutils literal"><span class="pre">Query</span></code> instance, limited to entities of kind,
+<code class="docutils literal"><span class="pre">Expense</span> <span class="pre">Report</span></code> (line 3), and applies filtering based on the passed
+criteria:</p>
 <ul class="simple">
-<li>If <tt class="docutils literal"><span class="pre">employee_id</span></tt> is passed, it adds an &#8220;ancestor&#8221; filter to
+<li>If <code class="docutils literal"><span class="pre">employee_id</span></code> is passed, it adds an &#8220;ancestor&#8221; filter to
 restrict the results to expense reports contained in the given employee
 (lines 4-6).</li>
-<li>If <tt class="docutils literal"><span class="pre">status</span></tt> is passed, it adds an &#8220;attribute&#8221; filter to
+<li>If <code class="docutils literal"><span class="pre">status</span></code> is passed, it adds an &#8220;attribute&#8221; filter to
 restrict the results to expense reports which have that status (lines 7-8).</li>
 </ul>
 <div class="admonition note">
@@ -501,7 +535,7 @@ restrict the results to expense reports which have that status (lines 7-8).</li>
 </div>
 <p>Finally, the function fetches the expense report entities returned by
 the query and iterates over them, passing each to
-<tt class="xref py py-func docutils literal"><span class="pre">expenses._report_info()</span></tt> and yielding the mapping it returns.
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._report_info()</span></code> and yielding the mapping it returns.
 report (lines 9-10).</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -548,16 +582,16 @@ report (lines 9-10).</p>
         <span class="p">}</span>
 </pre></div>
 </td></tr></table></div>
-<p>The <tt class="xref py py-func docutils literal"><span class="pre">expenses._report_info()</span></tt> utility function uses the expense report
-entity&#8217;s key to determine the report&#8217;s employee ID (line 3), and its
-report ID (line 4).  It then uses these values and the entityy&#8217;s properties
-to generate and return a mapping describing the report (lines 5-22).</p>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._report_info()</span></code> utility function uses the expense
+report entity&#8217;s key to determine the report&#8217;s employee ID (line 3), and its
+report ID (line 4).  It then uses these values and the entityy&#8217;s properties to
+generate and return a mapping describing the report (lines 5-22).</p>
 </div>
 <div class="section" id="showing-an-expense-report">
 <span id="show-expense-report"></span><h2>Showing an Expense Report<a class="headerlink" href="#showing-an-expense-report" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">show</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">show</span></code> subcommand of the
 <strong class="program">review_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.get_report_info()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.get_report_info()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
@@ -575,26 +609,26 @@ to generate and return a mapping describing the report (lines 5-22).</p>
     <span class="k">return</span> <span class="n">info</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.get_report_info()</span></tt> uses <tt class="xref py py-func docutils literal"><span class="pre">exenses._get_report()</span></tt> to fetch
-the expense report entity for the given employee ID and report ID (line 3),
-raising an exeception if the report does not exist (line 4):</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.get_report_info()</span></code> uses <code class="xref py py-func docutils literal"><span class="pre">exenses._get_report()</span></code>
+to fetch the expense report entity for the given employee ID and report ID
+(line 3), raising an exeception if the report does not exist (line 4):</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The function does <em>not</em> set up a transaction, as it uses only
 &#8220;read&#8221; operations on the API.</p>
 </div>
-<p>The function delegates to <tt class="xref py py-func docutils literal"><span class="pre">expenses._report_info()</span></tt> to get a mapping
+<p>The function delegates to <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._report_info()</span></code> to get a mapping
 describing the report (line 6), and then delegates to
-<tt class="xref py py-func docutils literal"><span class="pre">expenses._fetch_report_items()</span></tt> to retrieve information about the
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._fetch_report_items()</span></code> to retrieve information about the
 expense item entities contained in the report (line 7).  Finally, the
 function returns the mapping.</p>
 </div>
 <div class="section" id="approving-an-expense-report">
 <span id="approve-expense-report"></span><h2>Approving an Expense Report<a class="headerlink" href="#approving-an-expense-report" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">approve</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">approve</span></code> subcommand of the
 <strong class="program">review_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.approve_report()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.approve_report()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -620,18 +654,18 @@ function returns the mapping.</p>
         <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.approve_report()</span></tt> starts a transaction (line 3) to ensure that
-all changes are performed atomically.  It then checks that a report <em>does</em>
-exist already for the given employee ID and report ID, and that it is in
-<tt class="docutils literal"><span class="pre">pending</span></tt> status, raising an exception if not (lines 4-5).  It then updates
-the status and other metadata on the report itself (lines 9-12).</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.approve_report()</span></code> starts a transaction (line 3) to
+ensure that all changes are performed atomically.  It then checks that a
+report <em>does</em> exist already for the given employee ID and report ID, and that
+it is in <code class="docutils literal"><span class="pre">pending</span></code> status, raising an exception if not (lines 4-5).  It then
+updates the status and other metadata on the report itself (lines 9-12).</p>
 </div>
 <div class="section" id="rejecting-an-expense-report">
 <span id="reject-expense-report"></span><h2>Rejecting an Expense Report<a class="headerlink" href="#rejecting-an-expense-report" title="Permalink to this headline">¶</a></h2>
-<p>In the sample application, the <tt class="docutils literal"><span class="pre">reject</span></tt> subcommand of the
+<p>In the sample application, the <code class="docutils literal"><span class="pre">reject</span></code> subcommand of the
 <strong class="program">review_expenses</strong> script drives a function,
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.reject_report()</span></tt>:</p>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.reject_report()</span></code>:</p>
 <div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -657,12 +691,84 @@ the status and other metadata on the report itself (lines 9-12).</p>
         <span class="n">report</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the dataset via <tt class="xref py py-func docutils literal"><span class="pre">expenses._get_dataset()</span></tt> (line 2),
-<tt class="xref py py-func docutils literal"><span class="pre">expenses.approve_report()</span></tt> starts a transaction (line 3) to ensure that
-all changes are performed atomically.  It then checks that a report <em>does</em>
-exist already for the given employee ID and report ID, and that it is in
-<tt class="docutils literal"><span class="pre">pending</span></tt> status, raising an exception if not (lines 4-5).  It then updates
-the status and other metadata on the report itself (lines 9-12).</p>
+<p>After connecting to the dataset via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_dataset()</span></code> (line
+2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.approve_report()</span></code> starts a transaction (line 3) to
+ensure that all changes are performed atomically.  It then checks that a
+report <em>does</em> exist already for the given employee ID and report ID, and that
+it is in <code class="docutils literal"><span class="pre">pending</span></code> status, raising an exception if not (lines 4-5).  It then
+updates the status and other metadata on the report itself (lines 9-12).</p>
+</div>
+<div class="section" id="uploading-expense-receipts">
+<span id="upload-expense-receipts"></span><h2>Uploading Expense Receipts<a class="headerlink" href="#uploading-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">upload</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.upload_receipt()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">upload_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DuplicateReceipt</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">upload_from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="listing-expense-receipts">
+<span id="list-expense-receipts"></span><h2>Listing Expense Receipts<a class="headerlink" href="#listing-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">list</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.list_receipts()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_receipts</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">):</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bucket</span><span class="o">.</span><span class="n">iterator</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="downloading-expense-receipts">
+<span id="download-expense-receipts"></span><h2>Downloading Expense Receipts<a class="headerlink" href="#downloading-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">download</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.download_receipt()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">download_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="deleting-expense-receipts">
+<span id="delete-expense-receipts"></span><h2>Deleting Expense Receipts<a class="headerlink" href="#deleting-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">delete</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.download_receipt()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoSuchReceipt</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
 </div>
 </div>
 
@@ -677,7 +783,7 @@ the status and other metadata on the report itself (lines 9-12).</p>
     <footer id="gc-footer" class="footer" role="contentinfo">
     <div id="gc-copyright">
         &copy; Copyright 2014, JJ Geewax.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
       </div>
     </footer>
   </body>
