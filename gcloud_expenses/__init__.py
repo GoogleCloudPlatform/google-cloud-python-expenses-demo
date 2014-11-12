@@ -247,4 +247,9 @@ def list_receipts(employee_id, report_id):
 
 
 def download_receipt(employee_id, report_id, filename):
-    pass
+    basename = os.path.split(filename)[1]
+    bucket = _get_bucket()
+    key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
+    if key not in bucket:
+        raise NoSuchReceipt(key.name)
+    key.download_to_filename(filename)
