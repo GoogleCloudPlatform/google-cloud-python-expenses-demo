@@ -1,0 +1,196 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Storage Operatations &mdash; gcloud-python-expenses-demo 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="gcloud-python-expenses-demo 0.1 documentation" href="index.html" />
+    <link rel="prev" title="Datastore Operatations" href="datastore.html" /> 
+  </head>
+  <body role="document" class="two-column docs"><a href="https://github.com/GoogleCloudPlatform/gcloud-python"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 999;" src="_static/forkme.png" alt="Fork me on GitHub"></a>
+    <div id="sandbar">
+      <header id="gc-googlebar">
+      <a id="gc-logo" href="index.html">
+        <img src="_static/cloudplatform-horizontal.png" alt="Google">
+        </a>
+        <form class="gc-search" action="search.html" method="GET">
+          <div class="searchbox" style="width: 429px;">
+            <span class="button button-blue mini">Google Cloud Python API</span>
+            <input type="hidden" name="check_keywords" value="yes">
+            <input type="hidden" name="area" value="default">
+            <input type="text" name="q" class="q" id="q" value=""
+              placeholder="Search" autocomplete="off" style="width: 263px;">
+          </div>
+          <button class="button button-blue" style="top: 0px; left: 444px;">
+          <img src="_static/search.png" alt="Search">
+        </button>
+
+        <input type="hidden" name="p" id="search_project" value="/compute">
+
+      </form>
+      </header>
+    </div>
+    
+<div id="gc-wrapper">
+  <div id="gc-appbar">
+    <h1><a href="index.html">gcloud-python-expenses-demo 0.1 documentation</a></h1>
+  </div>
+    <div id="gc-main" class="main">
+      <div id="gc-sidebar" class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<nav class="gc-toc">
+  <ul><li><a href="index.html">gCloud Documentation</a></li></ul>
+  <ul>
+<li><a class="reference internal" href="#">Storage Operatations</a><ul>
+<li><a class="reference internal" href="#uploading-expense-receipts">Uploading Expense Receipts</a></li>
+<li><a class="reference internal" href="#listing-expense-receipts">Listing Expense Receipts</a></li>
+<li><a class="reference internal" href="#downloading-expense-receipts">Downloading Expense Receipts</a></li>
+<li><a class="reference internal" href="#deleting-expense-receipts">Deleting Expense Receipts</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav>
+
+            <h3>All API Docs</h3>
+            <nav class="gc-toc">
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="datastore.html">Datastore Operatations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Storage Operatations</a></li>
+</ul>
+
+            </nav>
+            
+            
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main" id="gc-content">
+            
+  <div class="section" id="storage-operatations">
+<h1>Storage Operatations<a class="headerlink" href="#storage-operatations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="uploading-expense-receipts">
+<span id="upload-expense-receipts"></span><h2>Uploading Expense Receipts<a class="headerlink" href="#uploading-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">upload</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.upload_receipt()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">upload_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DuplicateReceipt</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">upload_from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="listing-expense-receipts">
+<span id="list-expense-receipts"></span><h2>Listing Expense Receipts<a class="headerlink" href="#listing-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">list</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.list_receipts()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_receipts</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">):</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bucket</span><span class="o">.</span><span class="n">iterator</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="downloading-expense-receipts">
+<span id="download-expense-receipts"></span><h2>Downloading Expense Receipts<a class="headerlink" href="#downloading-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">download</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.download_receipt()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">download_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoSuchReceipt</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">download_to_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="deleting-expense-receipts">
+<span id="delete-expense-receipts"></span><h2>Deleting Expense Receipts<a class="headerlink" href="#deleting-expense-receipts" title="Permalink to this headline">¶</a></h2>
+<p>In the sample application, the <code class="docutils literal"><span class="pre">delete</span></code> subcommand of the
+<strong class="program">expense_receipts</strong> script drives a function,
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.download_receipt()</span></code>:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoSuchReceipt</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    </div>
+  </div>
+    <footer id="gc-footer" class="footer" role="contentinfo">
+    <div id="gc-copyright">
+        &copy; Copyright 2014, JJ Geewax.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      </div>
+    </footer>
+  </body>
+</html>
