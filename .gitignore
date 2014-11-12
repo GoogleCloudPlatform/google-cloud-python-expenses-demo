@@ -1,0 +1,4 @@
+.tox/
+docs/
+gcloud_expenses/
+*.egg-info/
