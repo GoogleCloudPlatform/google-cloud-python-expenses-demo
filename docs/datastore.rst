@@ -1,6 +1,8 @@
 Datastore Operatations
 ======================
 
+.. _connect-to-dataset:
+
 Connecting to the API Dataset
 -----------------------------
 
