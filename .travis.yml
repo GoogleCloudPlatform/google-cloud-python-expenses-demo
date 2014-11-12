@@ -1,12 +1,7 @@
 language: python
 
-before_install:
-  - git clone https://github.com/GoogleCloudPlatform/gcloud-python-wheels
-        gcloud-python-wheels
-  - export WHEELHOUSE="$(pwd)/gcloud-python-wheels/wheelhouse/"
-
 install:
-  - scripts/custom_pip_install.sh tox
+  - pip install tox
 
 script:
   - scripts/update_docs.sh
