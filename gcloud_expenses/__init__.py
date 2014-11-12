@@ -221,8 +221,8 @@ def reject_report(employee_id, report_id, reason):
 
 
 def upload_receipt(employee_id, report_id, filename):
-    basename = os.path.split(filename)[1]
     bucket = _get_bucket()
+    basename = os.path.split(filename)[1]
     key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
     if key in bucket:
         raise DuplicateReceipt(key.name)
@@ -230,8 +230,8 @@ def upload_receipt(employee_id, report_id, filename):
 
 
 def delete_receipt(employee_id, report_id, filename):
-    basename = os.path.split(filename)[1]
     bucket = _get_bucket()
+    basename = os.path.split(filename)[1]
     key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
     if key not in bucket:
         raise NoSuchReceipt(key.name)
@@ -247,8 +247,8 @@ def list_receipts(employee_id, report_id):
 
 
 def download_receipt(employee_id, report_id, filename):
-    basename = os.path.split(filename)[1]
     bucket = _get_bucket()
+    basename = os.path.split(filename)[1]
     key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
     if key not in bucket:
         raise NoSuchReceipt(key.name)
