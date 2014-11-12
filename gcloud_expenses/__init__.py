@@ -5,6 +5,11 @@ from gcloud import datastore
 from gcloud.datastore.key import Key
 from gcloud.datastore.entity import Entity
 from gcloud.datastore.query import Query
+from gcloud import storage
+from gcloud.storage.exceptions import NotFound
+
+
+BUCKET_NAME = 'gcloud-python-demo-expenses'
 
 
 class DuplicateReport(Exception):
@@ -21,6 +26,17 @@ class BadReportStatus(Exception):
 
 class NoSuchReceipt(Exception):
     """Attempt to download a receipt which does not already exist."""
+
+
+def _get_bucket():
+    client_email = os.environ['GCLOUD_TESTS_CLIENT_EMAIL']
+    private_key_path = os.environ['GCLOUD_TESTS_KEY_FILE']
+    dataset_id = os.environ['GCLOUD_TESTS_DATASET_ID']
+    conn = storage.get_connection(dataset_id, client_email, private_key_path)
+    try:
+        return conn.get_bucket(BUCKET_NAME)
+    except NotFound:
+        return conn.create_bucket(BUCKET_NAME)
 
 
 def _get_dataset():
@@ -204,7 +220,11 @@ def upload_receipt(employee_id, report_id, filename):
 
 
 def list_receipts(employee_id, report_id):
-    return ()
+    bucket = _get_bucket()
+    prefix = '%s/%s' % (employee_id, report_id)
+    for key in bucket.iterator(prefix=prefix, delimiter='/'):
+        name = key.name
+        yield name.rsplit('/', 1)[-1]
 
 
 def download_receipt(employee_id, report_id, filename):

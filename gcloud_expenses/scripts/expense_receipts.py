@@ -88,8 +88,13 @@ class ListReceipts(object):
             self.receipter.blather("Employee-ID: %s" % self.employee_id)
             self.receipter.blather("Report-ID: %s" % self.report_id)
             self.receipter.blather("")
+            count = 0
             for filename in filenames:
                 self.receipter.blather("Receipt: %s" % filename)
+                count += 1
+            self.receipter.blather("--------------------------")
+            self.receipter.blather("Number of receipts: %d" % count)
+
 
 
 class DownloadReceipt(object):
