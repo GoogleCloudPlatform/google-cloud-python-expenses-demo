@@ -1,6 +1,29 @@
 Storage Operatations
 ====================
 
+.. _connect-to-bucket:
+
+Connecting to the API Bucket
+-----------------------------
+
+The sample application uses a utility function,
+:func:`gcloud_expenses._get_bucket`, to set up the connection.
+
+.. literalinclude:: ../gcloud_expenses/__init__.py
+   :pyobject: _get_bucket
+
+Thie function expects three environment variables to be set up, using
+your project's `OAuth2 API credentials
+<https://developers.google.com/console/help/new/#generatingoauth2>`_:
+
+- :envvar:`GCLOUD_TESTS_DATASET_ID` is your Google API Project ID
+- :envvar:`GCLOUD_TESTS_CLIENT_EMAIL` is your Google API email-address
+- :envvar:`GCLOUD_TESTS_TESTS_KEY_FILE` is the filesystem path to your
+  Google API private key.
+
+It returns a single bucket with a fixed name, ``gcloud-python-demo-expenses``,
+first creating it if the bucket does not already exist.
+
 .. _upload-expense-receipts:
 
 Uploading Expense Receipts
