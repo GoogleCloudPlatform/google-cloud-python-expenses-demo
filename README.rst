@@ -18,7 +18,8 @@ Then, install this project:
    $ cd /path/to/gcloud-python-expenses-demo
    $ /path/to/virtualenv/bin/pip install -e .
 
-See the `narrative docs <docs/index.rst>`__ .
+See the `narrative docs
+<http://googlecloudplatform.github.io/gcloud-python-expenses-demo/>`__ .
 
 Contributing
 ------------
