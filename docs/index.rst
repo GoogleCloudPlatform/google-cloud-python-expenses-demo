@@ -61,6 +61,13 @@ and download one of them (see :ref:`download-expense-receipts`):
    $ expense_receipts download sally expenses-20140901 yellow_cab-20140827.jpg
    Saved to file:  yellow_cab-20140827.jpg
 
+or delete one of them (see :ref:`delete-expense-receipts`):
+
+.. code-block:: bash
+
+   $ expense_receipts delete sally expenses-20140901 yellow_cab-20140827.jpg
+   Deleted:  yellow_cab-20140827.jpg
+
 Sally can list all her submitted expense reports using our
 :program:`review_expenses` script (see :ref:`list-expense-reports`):
 
@@ -450,4 +457,17 @@ In the sample application, the ``download`` subcommand of the
 
 .. literalinclude:: ../gcloud_expenses/__init__.py
    :pyobject: download_receipt
+   :linenos:
+
+.. _delete-expense-receipts:
+
+Deleting Expense Receipts
+----------------------------
+
+In the sample application, the ``delete`` subcommand of the
+:program:`expense_receipts` script drives a function,
+:func:`gcloud_expenses.download_receipt`:
+
+.. literalinclude:: ../gcloud_expenses/__init__.py
+   :pyobject: delete_receipt
    :linenos:

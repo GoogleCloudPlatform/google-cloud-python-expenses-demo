@@ -1,5 +1,6 @@
 import datetime
 import os
+import urllib
 
 from gcloud import datastore
 from gcloud.datastore.key import Key
@@ -22,6 +23,10 @@ class NoSuchReport(Exception):
 
 class BadReportStatus(Exception):
     """Attempt to update / delete an already-approved/rejected report."""
+
+
+class DuplicateReceipt(Exception):
+    """Attempt to create a receipt which already exists."""
 
 
 class NoSuchReceipt(Exception):
@@ -216,14 +221,28 @@ def reject_report(employee_id, report_id, reason):
 
 
 def upload_receipt(employee_id, report_id, filename):
-    pass
+    basename = os.path.split(filename)[1]
+    bucket = _get_bucket()
+    key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
+    if key in bucket:
+        raise DuplicateReceipt(key.name)
+    key.upload_from_filename(filename)
+
+
+def delete_receipt(employee_id, report_id, filename):
+    basename = os.path.split(filename)[1]
+    bucket = _get_bucket()
+    key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
+    if key not in bucket:
+        raise NoSuchReceipt(key.name)
+    key.delete()
 
 
 def list_receipts(employee_id, report_id):
     bucket = _get_bucket()
-    prefix = '%s/%s' % (employee_id, report_id)
+    prefix = '%s/%s/' % (employee_id, report_id)
     for key in bucket.iterator(prefix=prefix, delimiter='/'):
-        name = key.name
+        name = urllib.unquote(key.name)
         yield name.rsplit('/', 1)[-1]
 
 

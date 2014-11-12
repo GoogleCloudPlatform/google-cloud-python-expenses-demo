@@ -4,11 +4,13 @@ import os
 import textwrap
 import sys
 
+from .. import DuplicateReceipt
 from .. import NoSuchReceipt
 from .. import NoSuchReport
-from .. import upload_receipt
-from .. import list_receipts
+from .. import delete_receipt
 from .. import download_receipt
+from .. import list_receipts
+from .. import upload_receipt
 
 
 class InvalidCommandLine(ValueError):
@@ -46,16 +48,29 @@ class UploadReceipt(object):
 
         _, args = parser.parse_args(args)
         try:
-            self.employee_id, self.report_id, self.filename = args
+            self.employee_id, self.report_id, filename = args
         except:
-            raise InvalidCommandLine('Specify employee ID, report ID, filename')
+            raise InvalidCommandLine(
+                'Specify employee ID, report ID, filename')
+
+        filename = os.path.abspath(
+                    os.path.normpath(filename))
+
+        if not os.path.isfile(filename):
+            raise InvalidCommandLine(
+                'Invalid filename: %s' % filename)
+
+        self.filename = filename
 
     def __call__(self):
         try:
             upload_receipt(self.employee_id, self.report_id, self.filename)
         except NoSuchReport:
             self.receipter.blather("No such report: %s/%s"
-                                   % (self.employee_id, self.report_id))
+                % (self.employee_id, self.report_id))
+        except DuplicateReceipt:
+            self.receipter.blather("Duplicate receipt: %s/%s/%s"
+                % (self.employee_id, self.report_id, self.filename))
         else:
             self.receipter.blather("Employee-ID: %s" % self.employee_id)
             self.receipter.blather("Report-ID: %s" % self.report_id)
@@ -128,10 +143,45 @@ class DownloadReceipt(object):
             self.receipter.blather("Downloaded: %s" % self.filename)
 
 
+class DeleteReceipt(object):
+    """Delete a receipt for a given expense report.
+    """
+    def __init__(self, receipter, *args):
+        self.receipter = receipter
+        args = list(args)
+        parser = optparse.OptionParser(
+            usage="%prog [OPTIONS] EMPLOYEE_ID REPORT_ID FILENAME")
+
+        _, args = parser.parse_args(args)
+        try:
+            self.employee_id, self.report_id, filename = args
+        except:
+            raise InvalidCommandLine(
+                'Specify employee ID, report ID, filename')
+
+        self.filename = filename
+
+    def __call__(self):
+        try:
+            delete_receipt(self.employee_id, self.report_id, self.filename)
+        except NoSuchReport:
+            self.receipter.blather("No such report: %s/%s"
+                % (self.employee_id, self.report_id))
+        except NoSuchReceipt:
+            self.receipter.blather("No such receipt: %s/%s/%s"
+                % (self.employee_id, self.report_id, self.filename))
+        else:
+            self.receipter.blather("Employee-ID: %s" % self.employee_id)
+            self.receipter.blather("Report-ID: %s" % self.report_id)
+            self.receipter.blather("")
+            self.receipter.blather("Deleted: %s" % self.filename)
+
+
 _COMMANDS = {
     'upload': UploadReceipt,
     'list': ListReceipts,
     'download': DownloadReceipt,
+    'delete': DeleteReceipt,
 }
 
 
