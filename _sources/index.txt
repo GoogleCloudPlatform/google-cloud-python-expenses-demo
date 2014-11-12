@@ -1,12 +1,6 @@
 Cloud Datastore Narrative / Example Application
 ===============================================
 
-.. toctree::
-   :maxdepth: 2
-
-   datastore
-   storage
-
 Overview
 --------
 
@@ -163,3 +157,12 @@ or reject it
 
    $ review_expenses reject --reason="Travel not authorized by client" sally expenses-20140901
    Rejected, report: sally/expenses-20140901, reason: Travel not authorized by client
+
+Implementation Review
+---------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   datastore
+   storage
