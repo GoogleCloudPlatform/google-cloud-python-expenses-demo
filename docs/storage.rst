@@ -37,6 +37,13 @@ In the sample application, the ``upload`` subcommand of the
    :pyobject: upload_receipt
    :linenos:
 
+After connecting to the bucket via :func:`gcloud_expenses._get_bucket` (line
+2), :func:`gcloud_expenses.upload_receipt` spilts off the "base" filename
+from the ``filename`` passed to it, in order to use the "base" as part of the
+key for the receipt (lines 3-4).  It checks that no receipt exists already
+with that key, raising an exception if so (lines 5-6).  Finally, it uploads
+the file into the bucket using that key (line 7).
+
 .. _list-expense-receipts:
 
 Listing Expense Receipts
@@ -49,6 +56,12 @@ In the sample application, the ``list`` subcommand of the
 .. literalinclude:: ../gcloud_expenses/__init__.py
    :pyobject: list_receipts
    :linenos:
+
+After connecting to the bucket via :func:`gcloud_expenses._get_bucket` (line
+2), :func:`gcloud_expenses.list_receipts` creates a "prefix" for retrieving
+onlyreceipts stored for a given expense report (line 3).  It then searches
+for keys using that prefix (line 4), and returns the "filename" portion of
+each retrieved key (lines 5-6).
 
 .. _download-expense-receipts:
 
@@ -63,6 +76,13 @@ In the sample application, the ``download`` subcommand of the
    :pyobject: download_receipt
    :linenos:
 
+After connecting to the bucket via :func:`gcloud_expenses._get_bucket` (line
+2), :func:`gcloud_expenses.dowload_receipt` spilts off the "base" filename
+from the ``filename`` passed to it, in order to use the "base" as part of the
+key for the receipt (lines 3-4).  It checks that the indicated receipt already
+exists, raising an exception if not (lines 5-6).  Finally, it downloads
+the file from the bucket using that key (line 7).
+
 .. _delete-expense-receipts:
 
 Deleting Expense Receipts
@@ -70,8 +90,15 @@ Deleting Expense Receipts
 
 In the sample application, the ``delete`` subcommand of the
 :program:`expense_receipts` script drives a function,
-:func:`gcloud_expenses.download_receipt`:
+:func:`gcloud_expenses.delete_receipt`:
 
 .. literalinclude:: ../gcloud_expenses/__init__.py
    :pyobject: delete_receipt
    :linenos:
+
+After connecting to the bucket via :func:`gcloud_expenses._get_bucket` (line
+2), :func:`gcloud_expenses.delete_receipt` spilts off the "base" filename
+from the ``filename`` passed to it, in order to use the "base" as part of the
+key for the receipt (lines 3-4).  It checks that the indicated receipt already
+exists, raising an exception if not (lines 5-6).  Finally, it deletes the key
+from the bucket (line 7).
