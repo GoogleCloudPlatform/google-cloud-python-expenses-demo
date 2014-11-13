@@ -15,15 +15,19 @@ The sample application uses a utility function,
 
 .. literalinclude:: ../gcloud_expenses/__init__.py
    :pyobject: _get_dataset
+   :linenos:
 
-Thie function expects three environment variables to be set up, using
-your project's `OAuth2 API credentials
+Thie function expects three environment variables to be set up (lines 2-4),
+using your project's `OAuth2 API credentials
 <https://developers.google.com/console/help/new/#generatingoauth2>`_:
 
 - :envvar:`GCLOUD_TESTS_DATASET_ID` is your Google API Project ID
 - :envvar:`GCLOUD_TESTS_CLIENT_EMAIL` is your Google API email-address
 - :envvar:`GCLOUD_TESTS_TESTS_KEY_FILE` is the filesystem path to your
   Google API private key.
+
+Using those values, the function returns a dataset for the project
+(line 5).
 
 .. _create-expense-report:
 
