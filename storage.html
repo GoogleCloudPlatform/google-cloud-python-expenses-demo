@@ -95,11 +95,22 @@
             
   <div class="section" id="storage-operatations">
 <h1>Storage Operatations<a class="headerlink" href="#storage-operatations" title="Permalink to this headline">¶</a></h1>
+<p>See the <a class="reference external" href="https://cloud.google.com/storage/docs/overview">Storage API overview</a> for concepts and terms
+used in this document.</p>
 <div class="section" id="connecting-to-the-api-bucket">
 <span id="connect-to-bucket"></span><h2>Connecting to the API Bucket<a class="headerlink" href="#connecting-to-the-api-bucket" title="Permalink to this headline">¶</a></h2>
 <p>The sample application uses a utility function,
-<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code>, to set up the connection.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_get_bucket</span><span class="p">():</span>
+<code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code>, to set up the connection and get
+access to a storage bucket:</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">_get_bucket</span><span class="p">():</span>
     <span class="n">client_email</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_CLIENT_EMAIL&#39;</span><span class="p">]</span>
     <span class="n">private_key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_KEY_FILE&#39;</span><span class="p">]</span>
     <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;GCLOUD_TESTS_DATASET_ID&#39;</span><span class="p">]</span>
@@ -109,17 +120,18 @@
     <span class="k">except</span> <span class="n">NotFound</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="n">create_bucket</span><span class="p">(</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
 </pre></div>
-</div>
-<p>Thie function expects three environment variables to be set up, using
-your project&#8217;s <a class="reference external" href="https://developers.google.com/console/help/new/#generatingoauth2">OAuth2 API credentials</a>:</p>
+</td></tr></table></div>
+<p>This function expects three environment variables to be set up (lines 2-4),
+using your project&#8217;s <a class="reference external" href="https://developers.google.com/console/help/new/#generatingoauth2">OAuth2 API credentials</a>:</p>
 <ul class="simple">
 <li><span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_DATASET_ID</span></code> is your Google API Project ID</li>
 <li><span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_CLIENT_EMAIL</span></code> is your Google API email-address</li>
 <li><span class="target" id="index-2"></span><code class="xref std std-envvar docutils literal"><span class="pre">GCLOUD_TESTS_TESTS_KEY_FILE</span></code> is the filesystem path to your
 Google API private key.</li>
 </ul>
-<p>It returns a single bucket with a fixed name, <code class="docutils literal"><span class="pre">gcloud-python-demo-expenses</span></code>,
-first creating it if the bucket does not already exist.</p>
+<p>Using those values, the function creates a connection object (line 5), It
+returns a single bucket with a fixed name, <code class="docutils literal"><span class="pre">gcloud-python-demo-expenses</span></code>,
+first creating it if the bucket does not already exist (lines 6-9).</p>
 </div>
 <div class="section" id="uploading-expense-receipts">
 <span id="upload-expense-receipts"></span><h2>Uploading Expense Receipts<a class="headerlink" href="#uploading-expense-receipts" title="Permalink to this headline">¶</a></h2>
@@ -141,12 +153,12 @@ first creating it if the bucket does not already exist.</p>
     <span class="n">key</span><span class="o">.</span><span class="n">upload_from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code> (line
-2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.upload_receipt()</span></code> spilts off the &#8220;base&#8221; filename
-from the <code class="docutils literal"><span class="pre">filename</span></code> passed to it, in order to use the &#8220;base&#8221; as part of the
-key for the receipt (lines 3-4).  It checks that no receipt exists already
-with that key, raising an exception if so (lines 5-6).  Finally, it uploads
-the file into the bucket using that key (line 7).</p>
+<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code>
+(line 2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.upload_receipt()</span></code> spilts off the &#8220;base&#8221;
+filename from the <code class="docutils literal"><span class="pre">filename</span></code> passed to it, in order to use the &#8220;base&#8221; as
+part of the key for the receipt (lines 3-4).  It checks that no receipt
+exists already with that key, raising an exception if so (lines 5-6).
+Finally, it uploads the file into the bucket using that key (line 7).</p>
 </div>
 <div class="section" id="listing-expense-receipts">
 <span id="list-expense-receipts"></span><h2>Listing Expense Receipts<a class="headerlink" href="#listing-expense-receipts" title="Permalink to this headline">¶</a></h2>
@@ -166,11 +178,11 @@ the file into the bucket using that key (line 7).</p>
         <span class="k">yield</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code> (line
-2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.list_receipts()</span></code> creates a &#8220;prefix&#8221; for retrieving
-onlyreceipts stored for a given expense report (line 3).  It then searches
-for keys using that prefix (line 4), and returns the &#8220;filename&#8221; portion of
-each retrieved key (lines 5-6).</p>
+<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code>
+(line 2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.list_receipts()</span></code> creates a &#8220;prefix&#8221; for
+retrieving onlyreceipts stored for a given expense report (line 3).  It
+then searches for keys using that prefix (line 4), and returns the
+&#8220;filename&#8221; portion of each retrieved key (lines 5-6).</p>
 </div>
 <div class="section" id="downloading-expense-receipts">
 <span id="download-expense-receipts"></span><h2>Downloading Expense Receipts<a class="headerlink" href="#downloading-expense-receipts" title="Permalink to this headline">¶</a></h2>
@@ -192,12 +204,12 @@ each retrieved key (lines 5-6).</p>
     <span class="n">key</span><span class="o">.</span><span class="n">download_to_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code> (line
-2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.dowload_receipt()</span></code> spilts off the &#8220;base&#8221; filename
-from the <code class="docutils literal"><span class="pre">filename</span></code> passed to it, in order to use the &#8220;base&#8221; as part of the
-key for the receipt (lines 3-4).  It checks that the indicated receipt already
-exists, raising an exception if not (lines 5-6).  Finally, it downloads
-the file from the bucket using that key (line 7).</p>
+<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code>
+(line 2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.dowload_receipt()</span></code> spilts off the &#8220;base&#8221;
+filename from the <code class="docutils literal"><span class="pre">filename</span></code> passed to it, in order to use the &#8220;base&#8221; as
+part of the key for the receipt (lines 3-4).  It checks that the indicated
+receipt already exists, raising an exception if not (lines 5-6).  Finally,
+it downloads the file from the bucket using that key (line 7).</p>
 </div>
 <div class="section" id="deleting-expense-receipts">
 <span id="delete-expense-receipts"></span><h2>Deleting Expense Receipts<a class="headerlink" href="#deleting-expense-receipts" title="Permalink to this headline">¶</a></h2>
@@ -219,12 +231,12 @@ the file from the bucket using that key (line 7).</p>
     <span class="n">key</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
-<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code> (line
-2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.delete_receipt()</span></code> spilts off the &#8220;base&#8221; filename
-from the <code class="docutils literal"><span class="pre">filename</span></code> passed to it, in order to use the &#8220;base&#8221; as part of the
-key for the receipt (lines 3-4).  It checks that the indicated receipt already
-exists, raising an exception if not (lines 5-6).  Finally, it deletes the key
-from the bucket (line 7).</p>
+<p>After connecting to the bucket via <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses._get_bucket()</span></code>
+(line 2), <code class="xref py py-func docutils literal"><span class="pre">gcloud_expenses.delete_receipt()</span></code> spilts off the &#8220;base&#8221;
+filename from the <code class="docutils literal"><span class="pre">filename</span></code> passed to it, in order to use the &#8220;base&#8221; as
+part of the key for the receipt (lines 3-4).  It checks that the indicated
+receipt already exists, raising an exception if not (lines 5-6).  Finally,
+it deletes the key from the bucket (line 7).</p>
 </div>
 </div>
 
