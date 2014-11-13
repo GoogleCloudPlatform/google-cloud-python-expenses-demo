@@ -1,5 +1,5 @@
-Datastore Operatations
-======================
+Datastore Operations
+====================
 
 See the `Datastore API overview
 <https://cloud.google.com/datastore/docs/overview>`_ for concepts and terms

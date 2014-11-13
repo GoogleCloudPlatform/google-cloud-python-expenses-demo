@@ -1,5 +1,5 @@
-Storage Operatations
-====================
+Storage Operations
+==================
 
 See the `Storage API overview
 <https://cloud.google.com/storage/docs/overview>`_ for concepts and terms
