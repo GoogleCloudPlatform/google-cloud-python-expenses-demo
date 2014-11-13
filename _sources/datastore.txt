@@ -1,6 +1,10 @@
 Datastore Operatations
 ======================
 
+See the `Datastore API overview
+<https://cloud.google.com/datastore/docs/overview>`_ for concepts and terms
+used in this document.
+
 .. _connect-to-dataset:
 
 Connecting to the API Dataset
