@@ -58,8 +58,21 @@ def _get_employee(dataset, employee_id, create=True):
     employee = dataset.get_entity(key)
     if employee is None and create:
         employee = dataset.entity('Employee').key(key)
+        employee['created'] = employee['updated'] = datetime.datetime.utcnow()
         employee.save()
     return employee
+
+
+def _employee_info(employee):
+    path = employee.key().path()
+    employee_id = path[0]['name']
+    created = employee.get('created')
+    updated = employee.get('updated')
+    return {
+        'employee_id': employee_id,
+        'created': created and created.strftime('%Y-%m-%d'),
+        'updated': updated and updated.strftime('%Y-%m-%d'),
+        }
 
 
 def _get_report(dataset, employee_id, report_id, create=True):
@@ -84,8 +97,6 @@ def _report_info(report):
     path = report.key().path()
     employee_id = path[0]['name']
     report_id = path[1]['name']
-    created = report['created'].strftime('%Y-%m-%d')
-    updated = report['updated'].strftime('%Y-%m-%d')
     status = report['status']
     if status == 'paid':
         memo = report['check_number']
@@ -96,8 +107,8 @@ def _report_info(report):
     return {
         'employee_id': employee_id,
         'report_id': report_id,
-        'created': created,
-        'updated': updated,
+        'created': report['created'].strftime('%Y-%m-%d'),
+        'updated': report['updated'].strftime('%Y-%m-%d'),
         'status': status,
         'description': report.get('description', ''),
         'memo': memo,
@@ -128,6 +139,12 @@ def _upsert_report(dataset, employee_id, report_id, rows):
         item.save()
     return report
 
+
+def list_employees():
+    dataset = _get_dataset()
+    query = Query('Employee', dataset)
+    for employee in query.fetch():
+        yield _employee_info(employee)
 
 def list_reports(employee_id=None, status=None):
     dataset = _get_dataset()
