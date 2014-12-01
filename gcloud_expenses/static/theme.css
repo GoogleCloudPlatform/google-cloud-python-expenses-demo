@@ -1,0 +1,152 @@
+@import url(//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700);
+body {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  color: #ffffff;
+  background: #bc2131;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+}
+p {
+  font-weight: 300;
+}
+.font-normal {
+  font-weight: 400;
+}
+.font-semi-bold {
+  font-weight: 600;
+}
+.font-bold {
+  font-weight: 700;
+}
+.gcloud-expenses {
+  margin-top: 250px;
+}
+.gcloud-expenses .content {
+  margin-left: 10px;
+}
+.gcloud-expenses .content h1 {
+  margin-top: 10px;
+  font-size: 60px;
+}
+.gcloud-expenses .content h1 .smaller {
+  font-size: 40px;
+  color: #f2b7bd;
+}
+.gcloud-expenses .content .lead {
+  font-size: 25px;
+  color: #f2b7bd;
+}
+.gcloud-expenses .content .lead .font-normal {
+  color: #ffffff;
+}
+.gcloud-expenses .links {
+  float: right;
+  right: 0;
+  margin-top: 125px;
+}
+.gcloud-expenses .links ul {
+  display: block;
+  padding: 0;
+  margin: 0;
+}
+.gcloud-expenses .links ul li {
+  list-style: none;
+  display: inline;
+  margin: 0 10px;
+}
+.gcloud-expenses .links ul li:first-child {
+  margin-left: 0;
+}
+.gcloud-expenses .links ul li:last-child {
+  margin-right: 0;
+}
+.gcloud-expenses .links ul li.current-version {
+  color: #f2b7bd;
+  font-weight: 400;
+}
+.gcloud-expenses .links ul li a {
+  color: #ffffff;
+}
+.gcloud-expenses .links ul li a:hover {
+  text-decoration: underline;
+}
+.gcloud-expenses .links ul li .icon-muted {
+  color: #eb8b95;
+  margin-right: 5px;
+}
+.gcloud-expenses .links ul li:hover .icon-muted {
+  color: #ffffff;
+}
+.gcloud-expenses .copyright {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #f2b7bd;
+  text-transform: lowercase;
+  float: right;
+  right: 0;
+}
+@media (max-width: 1199px) {
+  .gcloud-expenses .content h1 {
+    font-size: 45px;
+  }
+  .gcloud-expenses .content h1 .smaller {
+    font-size: 30px;
+  }
+  .gcloud-expenses .content .lead {
+    font-size: 20px;
+  }
+}
+@media (max-width: 991px) {
+  .gcloud-expenses {
+    margin-top: 0;
+  }
+  .gcloud-expenses .logo {
+    margin: 40px auto;
+  }
+  .gcloud-expenses .content {
+    margin-left: 0;
+    text-align: center;
+  }
+  .gcloud-expenses .content h1 {
+    margin-bottom: 20px;
+  }
+  .gcloud-expenses .links {
+    float: none;
+    text-align: center;
+    margin-top: 60px;
+  }
+  .gcloud-expenses .copyright {
+    float: none;
+    text-align: center;
+  }
+}
+@media (max-width: 767px) {
+  .gcloud-expenses .content h1 .smaller {
+    font-size: 25px;
+    display: block;
+  }
+  .gcloud-expenses .content .lead {
+    font-size: 16px;
+  }
+  .gcloud-expenses .links {
+    margin-top: 40px;
+  }
+  .gcloud-expenses .links ul li {
+    display: block;
+    margin: 0;
+  }
+  .gcloud-expenses .links ul li .icon-muted {
+    display: none;
+  }
+  .gcloud-expenses .copyright {
+    margin-top: 20px;
+  }
+}
