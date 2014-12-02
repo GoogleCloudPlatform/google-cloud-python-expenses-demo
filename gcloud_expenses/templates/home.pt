@@ -1,6 +1,6 @@
 <html metal:use-macro="request.main_template">
  <body>
-  <div metal:fill-slot="body-content">
+  <div metal:fill-slot="body-description">
    <p>Demonstrate using the following Google Cloud APIS to manage employee
       expense reports.</p>
 
@@ -12,5 +12,13 @@
    </ul>
    
   </div>
+
+  <div metal:fill-slot="body-content">
+   <ul>
+    <li><a href="/employees/"
+        >Employees</a></li>
+   </ul>
+  </div>
+
  </body>
 </html>

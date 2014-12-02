@@ -1,0 +1,15 @@
+<html metal:use-macro="request.main_template">
+ <body>
+
+  <div metal:fill-slot="body-content">
+   <h2>Employees</h2>
+
+   <ul>
+    <li tal:repeat="employee employees">
+      <a href="/employees/${employee.employee_id}">${employee.employee_id}</a>
+    </li>
+   </ul>
+  </div>
+
+ </body>
+</html>
