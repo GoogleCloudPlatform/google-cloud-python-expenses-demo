@@ -1,0 +1,30 @@
+<html metal:use-macro="request.main_template">
+ <body>
+
+  <div metal:fill-slot="body-content">
+   <h2>Employee: ${employee_id}</h2>
+
+   <table>
+    <thead>
+     <tr>
+      <th>Report ID</th>
+      <th>Created</th>
+      <th>Updated</th>
+      <th>Status</th>
+      <th>Memo</th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr tal:repeat="report reports">
+      <td>${report.report_id}</td>
+      <td>${report.created}</td>
+      <td>${report.updated}</td>
+      <td>${report.status}</td>
+      <td>${report.memo}</td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+
+ </body>
+</html>
