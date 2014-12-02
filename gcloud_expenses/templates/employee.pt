@@ -16,7 +16,8 @@
     </thead>
     <tbody>
      <tr tal:repeat="report reports">
-      <td>${report.report_id}</td>
+      <td><a href="/employees/${employee_id}/${report.report_id}"
+          >${report.report_id}</a></td>
       <td>${report.created}</td>
       <td>${report.updated}</td>
       <td>${report.status}</td>

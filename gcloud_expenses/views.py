@@ -1,6 +1,7 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 
+from . import get_report_info
 from . import list_employees
 from . import list_reports
 
@@ -25,6 +26,13 @@ def show_employee(request):
     return {'employee_id': employee_id,
             'reports': list_reports(employee_id),
            }
+
+
+@view_config(route_name='report', renderer='templates/report.pt')
+def show_report(request):
+    employee_id = request.matchdict['employee_id']
+    report_id = request.matchdict['report_id']
+    return {'report': get_report_info(employee_id, report_id)}
 
 
 def includeme(config):

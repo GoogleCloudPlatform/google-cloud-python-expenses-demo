@@ -11,5 +11,6 @@ def main(global_config, **settings):
     config.add_route('home', '/')
     config.add_route('employees', '/employees/')
     config.add_route('employee', '/employees/{employee_id}')
+    config.add_route('report', '/employees/{employee_id}/{report_id}')
     config.scan()
     return config.make_wsgi_app()

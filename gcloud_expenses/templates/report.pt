@@ -1,0 +1,39 @@
+<html metal:use-macro="request.main_template">
+ <body>
+
+  <div metal:fill-slot="body-content">
+   <h2>Expense Report: ${report.employee_id}/${report.report_id}</h2>
+
+   <ul>
+    <li>Created: ${report.created}</li>
+    <li>Updated: ${report.updated}</li>
+    <li>Status: ${report.status}</li>
+    <li>Memo: ${report.memo}</li>
+   </ul>
+
+   <table>
+    <thead>
+     <tr>
+      <th>Date</th>
+      <th>Vendor</th>
+      <th>Type</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Memo</th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr tal:repeat="item report['items']">
+      <td>${item['Date']}</td>
+      <td>${item['Vendor']}</td>
+      <td>${item['Type']}</td>
+      <td>${item['Quantity']}</td>
+      <td>${item['Price']}</td>
+      <td>${item['Memo']}</td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+
+ </body>
+</html>
