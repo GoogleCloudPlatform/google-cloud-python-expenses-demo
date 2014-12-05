@@ -1,0 +1,24 @@
+<html metal:use-macro="request.main_template">
+ <body>
+  <div metal:fill-slot="body-description">
+   <p>Demonstrate using the following Google Cloud APIS to manage employee
+      expense reports.</p>
+
+   <ul>
+    <li><a href="https://developers.google.com/datastore/"
+        >GCloud Datastore</a></li>
+    <li><a href="https://developers.google.com/storage/"
+        >GCloud Storage</a></li>
+   </ul>
+   
+  </div>
+
+  <div metal:fill-slot="body-content">
+   <dl>
+    <dt><a href="/employees/">Employees</a></dt>
+    <dd>View employees and navigate to their expense reports</dd>
+   </dl>
+  </div>
+
+ </body>
+</html>

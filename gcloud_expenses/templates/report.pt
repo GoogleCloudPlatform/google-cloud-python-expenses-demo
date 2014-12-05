@@ -1,0 +1,45 @@
+<html metal:use-macro="request.main_template">
+ <body>
+
+  <div class="panel panel-default"
+       metal:fill-slot="body-content">
+   <div class="panel-heading">
+    <h3>Expense Report:
+       <a href="/employees/${report.employee_id}"
+       >${report.employee_id}</a>/${report.report_id}</h3>
+   </div>
+
+   <div class="panel-body">
+    <ul>
+     <li>Created: ${report.created}</li>
+     <li>Updated: ${report.updated}</li>
+     <li>Status: ${report.status}</li>
+    </ul>
+   </div>
+
+   <table class="table table-condensed">
+    <thead>
+     <tr>
+      <th>Date</th>
+      <th>Vendor</th>
+      <th>Type</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Memo</th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr tal:repeat="item report['items']">
+      <td>${item['Date']}</td>
+      <td>${item['Vendor']}</td>
+      <td>${item['Type']}</td>
+      <td class="text-right">${item['Quantity']}</td>
+      <td class="text-right">${item['Price']}</td>
+      <td>${item['Memo']}</td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+
+ </body>
+</html>

@@ -1,0 +1,32 @@
+<html metal:use-macro="request.main_template">
+ <body>
+
+  <div class="panel panel-default"
+       metal:fill-slot="body-content">
+   <div class="panel-heading">
+    <h3>Employee: ${name}</h3>
+   </div>
+
+   <table class="table table-condensed">
+    <thead>
+     <tr>
+      <th>Report ID</th>
+      <th>Created</th>
+      <th>Updated</th>
+      <th>Status</th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr tal:repeat="report reports">
+      <td><a href="/employees/${employee_id}/${report.report_id}"
+          >${report.report_id}</a></td>
+      <td>${report.created}</td>
+      <td>${report.updated}</td>
+      <td>${report.status}</td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+
+ </body>
+</html>
