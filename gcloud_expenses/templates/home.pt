@@ -14,10 +14,10 @@
   </div>
 
   <div metal:fill-slot="body-content">
-   <ul>
-    <li><a href="/employees/"
-        >Employees</a></li>
-   </ul>
+   <dl>
+    <dt><a href="/employees/">Employees</a></dt>
+    <dd>View employees and navigate to their expense reports</dd>
+   </dl>
   </div>
 
  </body>

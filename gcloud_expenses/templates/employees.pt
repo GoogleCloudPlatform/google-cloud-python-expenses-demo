@@ -6,7 +6,7 @@
 
    <ul>
     <li tal:repeat="employee employees">
-      <a href="/employees/${employee.employee_id}">${employee.employee_id}</a>
+      <a href="/employees/${employee.employee_id}">${employee.name}</a>
     </li>
    </ul>
   </div>

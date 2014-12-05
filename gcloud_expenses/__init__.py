@@ -13,6 +13,10 @@ from gcloud.storage.exceptions import NotFound
 BUCKET_NAME = 'gcloud-python-demo-expenses'
 
 
+class NoSuchEmployee(Exception):
+    """Attempt to update / delete a report which does not already exist."""
+
+
 class DuplicateReport(Exception):
     """Attempt to create a report which already exists."""
 
@@ -66,13 +70,23 @@ def _get_employee(dataset, employee_id, create=True):
 def _employee_info(employee):
     path = employee.key().path()
     employee_id = path[0]['name']
+    first_name = employee.get('first_name')
+    last_name = employee.get('last_name')
     created = employee.get('created')
     updated = employee.get('updated')
     return {
         'employee_id': employee_id,
+        'name': ((first_name and last_name) and
+                    '%s %s' % (first_name, last_name) or employee_id),
         'created': created and created.strftime('%Y-%m-%d'),
         'updated': updated and updated.strftime('%Y-%m-%d'),
         }
+
+
+def _fetch_reports(dataset, employee):
+    query = Query('Expense Report', dataset)
+    for item in query.ancestor(employee.key()).fetch():
+        yield item
 
 
 def _get_report(dataset, employee_id, report_id, create=True):
@@ -145,6 +159,17 @@ def list_employees():
     query = Query('Employee', dataset)
     for employee in query.fetch():
         yield _employee_info(employee)
+
+
+def get_employee_info(employee_id):
+    dataset = _get_dataset()
+    employee = _get_employee(dataset, employee_id, False)
+    if employee is None:
+        raise NoSuchEmployee()
+    info = _employee_info(employee)
+    info['reports'] = [_report_info(report)
+                       for report in _fetch_reports(dataset, employee)]
+    return info
 
 def list_reports(employee_id=None, status=None):
     dataset = _get_dataset()

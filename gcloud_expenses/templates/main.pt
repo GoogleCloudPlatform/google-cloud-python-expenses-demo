@@ -29,10 +29,10 @@
    <div class="container">
     <div class="row">
      <div class="col-md-2">
-       <img class="logo img-responsive"
+       <a href="/"><img class="logo img-responsive"
             alt="pyramid web framework"
             src="${request.static_url('gcloud_expenses:static/pyramid.png')}"
-            >
+            ></a>
      </div>
      <div class="col-md-10">
        <div class="content">

@@ -1,9 +1,9 @@
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
 
+from . import get_employee_info
 from . import get_report_info
 from . import list_employees
-from . import list_reports
 
 def get_main_template(request):
     main_template = get_renderer('templates/main.pt')
@@ -30,11 +30,9 @@ def fixup_report(report):
 @view_config(route_name='employee', renderer='templates/employee.pt')
 def show_employee(request):
     employee_id = request.matchdict['employee_id']
-    return {'employee_id': employee_id,
-            'reports': [fixup_report(report)
-                        for report in list_reports(employee_id)],
-           }
-
+    info = get_employee_info(employee_id)
+    info['reports'] = [fixup_report(report) for report in info['reports']]
+    return info
 
 @view_config(route_name='report', renderer='templates/report.pt')
 def show_report(request):

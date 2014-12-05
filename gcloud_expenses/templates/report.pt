@@ -1,16 +1,23 @@
 <html metal:use-macro="request.main_template">
  <body>
 
-  <div metal:fill-slot="body-content">
-   <h2>Expense Report: ${report.employee_id}/${report.report_id}</h2>
+  <div class="panel panel-default"
+       metal:fill-slot="body-content">
+   <div class="panel-heading">
+    <h3>Expense Report:
+       <a href="/employees/${report.employee_id}"
+       >${report.employee_id}</a>/${report.report_id}</h3>
+   </div>
 
-   <ul>
-    <li>Created: ${report.created}</li>
-    <li>Updated: ${report.updated}</li>
-    <li>Status: ${report.status}</li>
-   </ul>
+   <div class="panel-body">
+    <ul>
+     <li>Created: ${report.created}</li>
+     <li>Updated: ${report.updated}</li>
+     <li>Status: ${report.status}</li>
+    </ul>
+   </div>
 
-   <table class="table">
+   <table class="table table-condensed">
     <thead>
      <tr>
       <th>Date</th>
@@ -26,8 +33,8 @@
       <td>${item['Date']}</td>
       <td>${item['Vendor']}</td>
       <td>${item['Type']}</td>
-      <td>${item['Quantity']}</td>
-      <td>${item['Price']}</td>
+      <td class="text-right">${item['Quantity']}</td>
+      <td class="text-right">${item['Price']}</td>
       <td>${item['Memo']}</td>
      </tr>
     </tbody>
