@@ -10,9 +10,9 @@ class ViewTests(unittest.TestCase):
         from pyramid import testing
         testing.tearDown()
 
-    def test_my_view(self):
+    def test_home_page(self):
         from pyramid import testing
-        from .views import my_view
+        from .views import home_page
         request = testing.DummyRequest()
-        info = my_view(request)
-        self.assertEqual(info['project'], 'foo')
+        info = home_page(request)
+        self.assertEqual(info, {})
