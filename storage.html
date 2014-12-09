@@ -144,8 +144,10 @@ first creating it if the bucket does not already exist (lines 6-9).</p>
 4
 5
 6
-7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">upload_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">upload_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
     <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
@@ -170,8 +172,10 @@ Finally, it uploads the file into the bucket using that key (line 7).</p>
 3
 4
 5
-6</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_receipts</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">):</span>
-    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_receipts</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
     <span class="n">prefix</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bucket</span><span class="o">.</span><span class="n">iterator</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -195,8 +199,10 @@ then searches for keys using that prefix (line 4), and returns the
 4
 5
 6
-7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">download_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">download_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
     <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>
@@ -222,8 +228,10 @@ it downloads the file from the bucket using that key (line 7).</p>
 4
 5
 6
-7</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
+7
+8</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_receipt</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">bucket</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">_get_bucket</span><span class="p">()</span>
     <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">new_key</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bucket</span><span class="p">:</span>

@@ -142,8 +142,10 @@ Google API private key.</li>
  8
  9
 10
-11</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DuplicateReport</span><span class="p">()</span>
@@ -307,8 +309,10 @@ given expense report.</p>
 10
 11
 12
-13</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">update_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+13
+14</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">update_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -346,8 +350,10 @@ utility function (line 6), finally updating metadata on the report itself
  8
  9
 10
-11</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">force</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">delete_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -389,8 +395,10 @@ deleted items.</p>
  7
  8
  9
-10</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_reports</span><span class="p">(</span><span class="n">employee_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">list_reports</span><span class="p">(</span><span class="n">employee_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="s">&#39;Expense Report&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">employee_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="p">[{</span><span class="s">&#39;kind&#39;</span><span class="p">:</span> <span class="s">&#39;Employee&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">employee_id</span><span class="p">}])</span>
@@ -480,8 +488,10 @@ generate and return a mapping describing the report (lines 5-22).</p>
 5
 6
 7
-8</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_report_info</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_report_info</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">NoSuchReport</span><span class="p">()</span>
@@ -521,8 +531,10 @@ function returns the mapping.</p>
  9
 10
 11
-12</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">approve_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">check_number</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">approve_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">check_number</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -558,8 +570,10 @@ updates the status and other metadata on the report itself (lines 9-12).</p>
  9
 10
 11
-12</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">reject_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">reason</span><span class="p">):</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span class="k">def</span> <span class="nf">reject_report</span><span class="p">(</span><span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_get_dataset</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transaction</span><span class="p">():</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">_get_report</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">,</span> <span class="n">report_id</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">report</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
