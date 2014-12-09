@@ -154,15 +154,17 @@ def _upsert_report(dataset, employee_id, report_id, rows):
     return report
 
 
-def list_employees():
-    dataset = _get_dataset()
+def list_employees(dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     query = Query('Employee', dataset)
     for employee in query.fetch():
         yield _employee_info(employee)
 
 
-def get_employee_info(employee_id):
-    dataset = _get_dataset()
+def get_employee_info(employee_id, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     employee = _get_employee(dataset, employee_id, False)
     if employee is None:
         raise NoSuchEmployee()
@@ -171,8 +173,9 @@ def get_employee_info(employee_id):
                        for report in _fetch_reports(dataset, employee)]
     return info
 
-def list_reports(employee_id=None, status=None):
-    dataset = _get_dataset()
+def list_reports(employee_id=None, status=None, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     query = Query('Expense Report', dataset)
     if employee_id is not None:
         key = Key(path=[{'kind': 'Employee', 'name': employee_id}])
@@ -183,8 +186,9 @@ def list_reports(employee_id=None, status=None):
         yield _report_info(report)
 
 
-def get_report_info(employee_id, report_id):
-    dataset = _get_dataset()
+def get_report_info(employee_id, report_id, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     report = _get_report(dataset, employee_id, report_id, False)
     if report is None:
         raise NoSuchReport()
@@ -193,8 +197,9 @@ def get_report_info(employee_id, report_id):
     return info
 
 
-def create_report(employee_id, report_id, rows, description):
-    dataset = _get_dataset()
+def create_report(employee_id, report_id, rows, description, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     with dataset.transaction():
         if _get_report(dataset, employee_id, report_id, False) is not None:
             raise DuplicateReport()
@@ -206,8 +211,9 @@ def create_report(employee_id, report_id, rows, description):
         report.save()
 
 
-def update_report(employee_id, report_id, rows, description):
-    dataset = _get_dataset()
+def update_report(employee_id, report_id, rows, description, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     with dataset.transaction():
         report = _get_report(dataset, employee_id, report_id, False)
         if report is None:
@@ -221,8 +227,9 @@ def update_report(employee_id, report_id, rows, description):
         report.save()
 
 
-def delete_report(employee_id, report_id, force):
-    dataset = _get_dataset()
+def delete_report(employee_id, report_id, force, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     with dataset.transaction():
         report = _get_report(dataset, employee_id, report_id, False)
         if report is None:
@@ -234,8 +241,9 @@ def delete_report(employee_id, report_id, force):
     return count
 
 
-def approve_report(employee_id, report_id, check_number):
-    dataset = _get_dataset()
+def approve_report(employee_id, report_id, check_number, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     with dataset.transaction():
         report = _get_report(dataset, employee_id, report_id, False)
         if report is None:
@@ -248,8 +256,9 @@ def approve_report(employee_id, report_id, check_number):
         report.save()
 
 
-def reject_report(employee_id, report_id, reason):
-    dataset = _get_dataset()
+def reject_report(employee_id, report_id, reason, dataset=None):
+    if dataset is None:
+        dataset = _get_dataset()
     with dataset.transaction():
         report = _get_report(dataset, employee_id, report_id, False)
         if report is None:
@@ -262,8 +271,9 @@ def reject_report(employee_id, report_id, reason):
         report.save()
 
 
-def upload_receipt(employee_id, report_id, filename):
-    bucket = _get_bucket()
+def upload_receipt(employee_id, report_id, filename, bucket=None):
+    if bucket is None:
+        bucket = _get_bucket()
     basename = os.path.split(filename)[1]
     key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
     if key in bucket:
@@ -271,8 +281,9 @@ def upload_receipt(employee_id, report_id, filename):
     key.upload_from_filename(filename)
 
 
-def delete_receipt(employee_id, report_id, filename):
-    bucket = _get_bucket()
+def delete_receipt(employee_id, report_id, filename, bucket=None):
+    if bucket is None:
+        bucket = _get_bucket()
     basename = os.path.split(filename)[1]
     key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
     if key not in bucket:
@@ -280,16 +291,18 @@ def delete_receipt(employee_id, report_id, filename):
     key.delete()
 
 
-def list_receipts(employee_id, report_id):
-    bucket = _get_bucket()
+def list_receipts(employee_id, report_id, bucket=None):
+    if bucket is None:
+        bucket = _get_bucket()
     prefix = '%s/%s/' % (employee_id, report_id)
     for key in bucket.iterator(prefix=prefix, delimiter='/'):
         name = urllib.unquote(key.name)
         yield name.rsplit('/', 1)[-1]
 
 
-def download_receipt(employee_id, report_id, filename):
-    bucket = _get_bucket()
+def download_receipt(employee_id, report_id, filename, bucket=None):
+    if bucket is None:
+        bucket = _get_bucket()
     basename = os.path.split(filename)[1]
     key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
     if key not in bucket:
