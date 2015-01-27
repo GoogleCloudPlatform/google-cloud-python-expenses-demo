@@ -9,6 +9,7 @@ from .. import NoSuchReceipt
 from .. import NoSuchReport
 from .. import delete_receipt
 from .. import download_receipt
+from .. import initialize_gcloud
 from .. import list_receipts
 from .. import upload_receipt
 
@@ -291,6 +292,7 @@ class ExpenseReceipts(object):
 
 
 def main(argv=sys.argv[1:]):
+    initialize_gcloud()
     try:
         ExpenseReceipts(argv)()
     except InvalidCommandLine as e:  # pragma NO COVERAGE

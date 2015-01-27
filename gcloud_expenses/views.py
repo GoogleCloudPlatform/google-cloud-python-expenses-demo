@@ -17,7 +17,7 @@ def home_page(request):
 
 @view_config(route_name='employees', renderer='templates/employees.pt')
 def show_employees(request):
-    return {'employees': list_employees(dataset=request.dataset)}
+    return {'employees': list_employees()}
 
 
 def fixup_report(report):
@@ -30,7 +30,7 @@ def fixup_report(report):
 @view_config(route_name='employee', renderer='templates/employee.pt')
 def show_employee(request):
     employee_id = request.matchdict['employee_id']
-    info = get_employee_info(employee_id, dataset=request.dataset)
+    info = get_employee_info(employee_id)
     info['reports'] = [fixup_report(report) for report in info['reports']]
     return info
 
@@ -39,8 +39,7 @@ def show_report(request):
     employee_id = request.matchdict['employee_id']
     report_id = request.matchdict['report_id']
     return {'report':
-            fixup_report(get_report_info(employee_id, report_id,
-                                         dataset=request.dataset))}
+            fixup_report(get_report_info(employee_id, report_id))}
 
 
 def includeme(config):

@@ -7,6 +7,7 @@ import sys
 from .. import NoSuchReport
 from .. import approve_report
 from .. import get_report_info
+from .. import initialize_gcloud
 from .. import list_reports
 from .. import reject_report
 
@@ -289,6 +290,7 @@ class ReviewExpenses(object):
 
 
 def main(argv=sys.argv[1:]):
+    initialize_gcloud()
     try:
         ReviewExpenses(argv)()
     except InvalidCommandLine as e:  # pragma NO COVERAGE

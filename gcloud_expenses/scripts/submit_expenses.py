@@ -10,6 +10,7 @@ from .. import DuplicateReport
 from .. import NoSuchReport
 from .. import create_report
 from .. import delete_report
+from .. import initialize_gcloud
 from .. import update_report
 
 
@@ -275,6 +276,7 @@ class SubmitExpenses(object):
 
 
 def main(argv=sys.argv[1:]):
+    initialize_gcloud()
     try:
         SubmitExpenses(argv)()
     except InvalidCommandLine as e:  # pragma NO COVERAGE

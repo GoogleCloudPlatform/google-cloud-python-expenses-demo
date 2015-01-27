@@ -6,6 +6,7 @@ from gcloud import datastore
 from gcloud.datastore.key import Key
 from gcloud.datastore.entity import Entity
 from gcloud.datastore.query import Query
+from gcloud.datastore.transaction import Transaction
 from gcloud import storage
 from gcloud.storage.exceptions import NotFound
 
@@ -38,37 +39,30 @@ class NoSuchReceipt(Exception):
 
 
 def _get_bucket():
-    client_email = os.environ['GCLOUD_TESTS_CLIENT_EMAIL']
-    private_key_path = os.environ['GCLOUD_TESTS_KEY_FILE']
-    dataset_id = os.environ['GCLOUD_TESTS_DATASET_ID']
-    conn = storage.get_connection(dataset_id, client_email, private_key_path)
+    project = os.environ['GCLOUD_PROJECT_ID']
     try:
-        return conn.get_bucket(BUCKET_NAME)
+        return storage.get_bucket(BUCKET_NAME, project)
     except NotFound:
+        conn = storage.get_connection(project)
         return conn.create_bucket(BUCKET_NAME)
 
 
-def _get_dataset():
-    client_email = os.environ['GCLOUD_TESTS_CLIENT_EMAIL']
-    private_key_path = os.environ['GCLOUD_TESTS_KEY_FILE']
-    dataset_id = os.environ['GCLOUD_TESTS_DATASET_ID']
-    return datastore.get_dataset(dataset_id, client_email, private_key_path)
-
-
-def _get_employee(dataset, employee_id, create=True):
-    key = Key(path=[
-        {'kind': 'Employee', 'name': employee_id},
-        ])
-    employee = dataset.get_entity(key)
-    if employee is None and create:
-        employee = dataset.entity('Employee').key(key)
+def _get_employee(employee_id, create=True):
+    key = Key('Employee',  employee_id)
+    employees = datastore.get([key])
+    if len(employees) == 0:
+        if not create:
+            return None
+        employee = Entity(key)
         employee['created'] = employee['updated'] = datetime.datetime.utcnow()
-        employee.save()
+        datastore.put([employee])
+    else:
+        employee, = employees
     return employee
 
 
 def _employee_info(employee):
-    path = employee.key().path()
+    path = employee.key.path
     employee_id = path[0]['name']
     first_name = employee.get('first_name')
     last_name = employee.get('last_name')
@@ -83,39 +77,42 @@ def _employee_info(employee):
         }
 
 
-def _fetch_reports(dataset, employee):
-    query = Query('Expense Report', dataset)
-    for item in query.ancestor(employee.key()).fetch():
+def _fetch_reports(employee):
+    query = Query(kind='Expense Report')
+    query.ancestor = employee.key
+    for item in query.fetch():
         yield item
 
 
-def _get_report(dataset, employee_id, report_id, create=True):
-    key = Key(path=[
-        {'kind': 'Employee', 'name': employee_id},
-        {'kind': 'Expense Report', 'name': report_id},
-        ])
-    report = dataset.get_entity(key)
-    if report is None and create:
-        report = dataset.entity('Report').key(key)
-        report.save()
+def _get_report(employee_id, report_id, create=True):
+    key = Key('Employee', employee_id, 'Expense Report', report_id)
+    reports = datastore.get([key])
+    if len(reports) == 0:
+        if not create:
+            return None
+        report = Entity(key)
+        datastore.put([report])
+    else:
+        report, = reports
     return report
 
 
-def _fetch_report_items(dataset, report):
-    query = Query('Expense Item', dataset)
-    for item in query.ancestor(report.key()).fetch():
+def _fetch_report_items(report):
+    query = Query(kind='Expense Item')
+    query.ancestor = report.key
+    for item in query.fetch():
         yield item
 
 
 def _report_info(report):
-    path = report.key().path()
+    path = report.key.path
     employee_id = path[0]['name']
     report_id = path[1]['name']
     status = report['status']
     if status == 'paid':
         memo = report['check_number']
     elif status == 'rejected':
-        memo = report['rejected_reason']
+        memo = report['reason']
     else:
         memo = ''
     return {
@@ -129,123 +126,112 @@ def _report_info(report):
         }
 
 
-def _purge_report_items(dataset, report):
+def _purge_report_items(report):
     # Delete any existing items belonging to report
     count = 0
-    for item in _fetch_report_items(dataset, report):
-        item.delete()
+    for item in _fetch_report_items(report):
+        datastore.delete([item.key])
         count += 1
     return count
 
 
-def _upsert_report(dataset, employee_id, report_id, rows):
-    _get_employee(dataset, employee_id)  # force existence
-    report = _get_report(dataset, employee_id, report_id)
-    _purge_report_items(dataset, report)
+def _upsert_report(employee_id, report_id, rows):
+    _get_employee(employee_id)  # force existence
+    report = _get_report(employee_id, report_id)
+    _purge_report_items(report)
     # Add items based on rows.
-    report_path = report.key().path()
+    report_path = list(report.key.flat_path)
     for i, row in enumerate(rows):
-        path = report_path + [{'kind': 'Expense Item', 'id': i + 1}]
-        key = Key(path=path)
-        item = Entity(dataset, 'Expense Item').key(key)
+        path = report_path + ['Expense Item', i + 1]
+        key = Key(*path)
+        item = Entity(key)
         for k, v in row.items():
             item[k] = v
-        item.save()
+        datastore.put([item])
     return report
 
 
-def list_employees(dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    query = Query('Employee', dataset)
+def initialize_gcloud():
+    datastore.set_defaults()
+    storage.set_defaults()
+
+
+def list_employees():
+    query = Query(kind='Employee')
     for employee in query.fetch():
         yield _employee_info(employee)
 
 
-def get_employee_info(employee_id, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    employee = _get_employee(dataset, employee_id, False)
+def get_employee_info(employee_id):
+    employee = _get_employee(employee_id, False)
     if employee is None:
         raise NoSuchEmployee()
     info = _employee_info(employee)
     info['reports'] = [_report_info(report)
-                       for report in _fetch_reports(dataset, employee)]
+                       for report in _fetch_reports(employee)]
     return info
 
-def list_reports(employee_id=None, status=None, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    query = Query('Expense Report', dataset)
+def list_reports(employee_id=None, status=None):
+    query = Query(kind='Expense Report')
     if employee_id is not None:
-        key = Key(path=[{'kind': 'Employee', 'name': employee_id}])
-        query = query.ancestor(key)
+        key = Key('Employee', employee_id)
+        query.ancestor = key
     if status is not None:
-        query = query.filter('status =', status)
+        query.add_filter('status', '=', status)
     for report in query.fetch():
         yield _report_info(report)
 
 
-def get_report_info(employee_id, report_id, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    report = _get_report(dataset, employee_id, report_id, False)
+def get_report_info(employee_id, report_id):
+    report = _get_report(employee_id, report_id, False)
     if report is None:
         raise NoSuchReport()
     info = _report_info(report)
-    info['items'] = [dict(x) for x in _fetch_report_items(dataset, report)]
+    info['items'] = [dict(x) for x in _fetch_report_items(report)]
     return info
 
 
-def create_report(employee_id, report_id, rows, description, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    with dataset.transaction():
-        if _get_report(dataset, employee_id, report_id, False) is not None:
+def create_report(employee_id, report_id, rows, description):
+    with Transaction():
+        if _get_report(employee_id, report_id, False) is not None:
             raise DuplicateReport()
-        report = _upsert_report(dataset, employee_id, report_id, rows)
+        report = _upsert_report(employee_id, report_id, rows)
         report['status'] = 'pending'
         if description is not None:
             report['description'] = description
         report['created'] = report['updated'] = datetime.datetime.utcnow()
-        report.save()
+        datastore.put([report])
 
 
-def update_report(employee_id, report_id, rows, description, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    with dataset.transaction():
-        report = _get_report(dataset, employee_id, report_id, False)
+def update_report(employee_id, report_id, rows, description):
+    with Transaction():
+        report = _get_report(employee_id, report_id, False)
         if report is None:
             raise NoSuchReport()
         if report['status'] != 'pending':
             raise BadReportStatus(report['status'])
-        _upsert_report(dataset, employee_id, report_id, rows)
+        _upsert_report(employee_id, report_id, rows)
         if description is not None:
             report['description'] = description
         report['updated'] = datetime.datetime.utcnow()
-        report.save()
+        datastore.put([report])
 
 
-def delete_report(employee_id, report_id, force, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    with dataset.transaction():
-        report = _get_report(dataset, employee_id, report_id, False)
+def delete_report(employee_id, report_id, force):
+    with Transaction():
+        report = _get_report(employee_id, report_id, False)
         if report is None:
             raise NoSuchReport()
         if report['status'] != 'pending' and not force:
             raise BadReportStatus(report['status'])
-        count = _purge_report_items(dataset, report)
-        report.delete()
+        count = _purge_report_items(report)
+        datastore.delete([report.key])
     return count
 
 
-def approve_report(employee_id, report_id, check_number, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    with dataset.transaction():
-        report = _get_report(dataset, employee_id, report_id, False)
+def approve_report(employee_id, report_id, check_number):
+    with Transaction():
+        report = _get_report(employee_id, report_id, False)
         if report is None:
             raise NoSuchReport()
         if report['status'] != 'pending':
@@ -253,14 +239,12 @@ def approve_report(employee_id, report_id, check_number, dataset=None):
         report['updated'] = datetime.datetime.utcnow()
         report['status'] = 'paid'
         report['check_number'] = check_number
-        report.save()
+        datastore.put([report])
 
 
-def reject_report(employee_id, report_id, reason, dataset=None):
-    if dataset is None:
-        dataset = _get_dataset()
-    with dataset.transaction():
-        report = _get_report(dataset, employee_id, report_id, False)
+def reject_report(employee_id, report_id, reason):
+    with Transaction():
+        report = _get_report(employee_id, report_id, False)
         if report is None:
             raise NoSuchReport()
         if report['status'] != 'pending':
@@ -268,27 +252,27 @@ def reject_report(employee_id, report_id, reason, dataset=None):
         report['updated'] = datetime.datetime.utcnow()
         report['status'] = 'rejected'
         report['reason'] = reason
-        report.save()
+        datastore.put([report])
 
 
 def upload_receipt(employee_id, report_id, filename, bucket=None):
     if bucket is None:
         bucket = _get_bucket()
     basename = os.path.split(filename)[1]
-    key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
-    if key in bucket:
-        raise DuplicateReceipt(key.name)
-    key.upload_from_filename(filename)
+    blob = bucket.new_blob('%s/%s/%s' % (employee_id, report_id, basename))
+    if blob in bucket:
+        raise DuplicateReceipt(blob.name)
+    blob.upload_from_filename(filename)
 
 
 def delete_receipt(employee_id, report_id, filename, bucket=None):
     if bucket is None:
         bucket = _get_bucket()
     basename = os.path.split(filename)[1]
-    key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
-    if key not in bucket:
-        raise NoSuchReceipt(key.name)
-    key.delete()
+    blob = bucket.new_blob('%s/%s/%s' % (employee_id, report_id, basename))
+    if blob not in bucket:
+        raise NoSuchReceipt(blob.name)
+    blob.delete()
 
 
 def list_receipts(employee_id, report_id, bucket=None):
@@ -304,7 +288,7 @@ def download_receipt(employee_id, report_id, filename, bucket=None):
     if bucket is None:
         bucket = _get_bucket()
     basename = os.path.split(filename)[1]
-    key = bucket.new_key('%s/%s/%s' % (employee_id, report_id, basename))
-    if key not in bucket:
-        raise NoSuchReceipt(key.name)
-    key.download_to_filename(filename)
+    blob = bucket.new_blob('%s/%s/%s' % (employee_id, report_id, basename))
+    if blob not in bucket:
+        raise NoSuchReceipt(blob.name)
+    blob.download_to_filename(filename)
