@@ -7,27 +7,23 @@ used in this document.
 
 .. _connect-to-dataset:
 
-Connecting to the API Dataset
------------------------------
+Connecting to the API
+---------------------
 
 The sample application uses a utility function,
-:func:`gcloud_expenses._get_dataset`, to set up the connection.
+:func:`gcloud_expenses.initialize_gcloud`, to set up the connection.
 
 .. literalinclude:: ../gcloud_expenses/__init__.py
-   :pyobject: _get_dataset
+   :pyobject: initialize_gcloud
    :linenos:
 
-Thie function expects three environment variables to be set up (lines 2-4),
+This function expects environment variables to be set up,
 using your project's `OAuth2 API credentials
 <https://developers.google.com/console/help/new/#generatingoauth2>`_:
 
-- :envvar:`GCLOUD_TESTS_DATASET_ID` is your Google API Project ID
-- :envvar:`GCLOUD_TESTS_CLIENT_EMAIL` is your Google API email-address
-- :envvar:`GCLOUD_TESTS_TESTS_KEY_FILE` is the filesystem path to your
+- :envvar:`GCLOUD_DATASET_ID` is your Google API Project ID
   Google API private key.
 
-Using those values, the function returns a dataset for the project
-(line 5).
 
 .. _create-expense-report:
 
@@ -42,13 +38,12 @@ In the sample application, the ``create`` subcommand of the
    :pyobject: create_report
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.create_report` starts a transaction (line 3) to
+:func:`gcloud_expenses.create_report` starts a transaction (line 2) to
 ensure that all changes are performed atomically.  It then checks that no
 report exists already for the given employee ID and report ID, raising an
-exception if so (lines 4-5).  It then  delegates most of the work to the
-:func:`gcloud_expenses._upsert_report` utility function (line 6), finally
-setting metadata on the report itself (lines 7-11).
+exception if so (lines 3-4).  It then  delegates most of the work to the
+:func:`gcloud_expenses._upsert_report` utility function (line 5), finally
+setting metadata on the report itself (lines 6-10).
 
 
 .. literalinclude:: ../gcloud_expenses/__init__.py
@@ -120,14 +115,13 @@ In the sample application, the ``update`` subcommand of the
    :pyobject: update_report
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.update_report` starts a transaction (line 3) to
+:func:`gcloud_expenses.update_report` starts a transaction (line 2) to
 ensure that all changes are performed atomically.  It then checks that a
 report *does* exist already for the given employee ID and report ID, and that
-it is in ``pending`` status, raising an exception if not (lines 4-5).  It then
+it is in ``pending`` status, raising an exception if not (lines 3.4).  It then
 delegates most of the work to the :func:`gcloud_expenses._upsert_report`
-utility function (line 6), finally updating metadata on the report itself
-(lines 7-11).
+utility function (line 5), finally updating metadata on the report itself
+(lines 6-10).
 
 .. _delete-expense-report:
 
@@ -142,11 +136,10 @@ In the sample application, the ``delete`` subcommand of the
    :pyobject: delete_report
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.delete_report` starts a transaction (line 3) to
+:func:`gcloud_expenses.delete_report` starts a transaction (line 2) to
 ensure that all changes are performed atomically.  It then checks that a
 report *does* exist already for the given employee ID and report ID (lines
-4-6), and that it is in ``pending`` status (lines 7-8), raising an exception
+3-5), and that it is in ``pending`` status (lines 6-7), raising an exception
 if either is false.
 
 .. note::
@@ -155,9 +148,9 @@ if either is false.
    report even if it is not in ``pending`` status.
 
 The function then delegates to :func:`gcloud_expenses._purge_report_items` to
-delete expense item entities contained in the report (line 9), and then
-deletes the report itself (line 10).  Finally, it returns a count of the
-deleted items.
+delete expense item entities contained in the report (line 8), and then
+deletes the report itself (line 9).  Finally, it returns a count of the
+deleted items (line 10).
 
 .. _list-expense-reports:
 
@@ -172,18 +165,17 @@ In the sample application, the ``list`` subcommand of the
    :pyobject: list_reports
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.list_reports` creates a
+:func:`gcloud_expenses.list_reports` creates a
 :class:`~gcloud.dataset.query.Query` instance, limited to entities of kind,
-``Expense Report`` (line 3), and applies filtering based on the passed
+``Expense Report`` (line 2), and applies filtering based on the passed
 criteria:
 
 - If ``employee_id`` is passed, it adds an "ancestor" filter to
   restrict the results to expense reports contained in the given employee
-  (lines 4-6).
+  (lines 3-5).
 
 - If ``status`` is passed, it adds an "attribute" filter to
-  restrict the results to expense reports which have that status (lines 7-8).
+  restrict the results to expense reports which have that status (lines 6-8).
 
 .. note::
 
@@ -193,7 +185,7 @@ criteria:
 Finally, the function fetches the expense report entities returned by
 the query and iterates over them, passing each to
 :func:`gcloud_expenses._report_info` and yielding the mapping it returns.
-report (lines 9-10).
+report (lines 8-9).
 
 .. literalinclude:: ../gcloud_expenses/__init__.py
    :pyobject: _report_info
@@ -217,10 +209,9 @@ In the sample application, the ``show`` subcommand of the
    :pyobject: get_report_info
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.get_report_info` uses :func:`exenses._get_report`
+:func:`gcloud_expenses.get_report_info` uses :func:`exenses._get_report`
 to fetch the expense report entity for the given employee ID and report ID
-(line 3), raising an exeception if the report does not exist (line 4):
+(line 2), raising an exeception if the report does not exist (lines 3-4):
 
 .. note::
 
@@ -228,10 +219,10 @@ to fetch the expense report entity for the given employee ID and report ID
    "read" operations on the API.
 
 The function delegates to :func:`gcloud_expenses._report_info` to get a mapping
-describing the report (line 6), and then delegates to
+describing the report (line 5), and then delegates to
 :func:`gcloud_expenses._fetch_report_items` to retrieve information about the
-expense item entities contained in the report (line 7).  Finally, the
-function returns the mapping.
+expense item entities contained in the report (line 6).  Finally, the
+function returns the mapping (line 7).
 
 .. _approve-expense-report:
 
@@ -246,12 +237,11 @@ In the sample application, the ``approve`` subcommand of the
    :pyobject: approve_report
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.approve_report` starts a transaction (line 3) to
+:func:`gcloud_expenses.approve_report` starts a transaction (line 2) to
 ensure that all changes are performed atomically.  It then checks that a
 report *does* exist already for the given employee ID and report ID, and that
-it is in ``pending`` status, raising an exception if not (lines 4-5).  It then
-updates the status and other metadata on the report itself (lines 9-12).
+it is in ``pending`` status, raising an exception if not (lines 3-7).  It then
+updates the status and other metadata on the report itself (lines 8-11).
 
 .. _reject-expense-report:
 
@@ -266,9 +256,8 @@ In the sample application, the ``reject`` subcommand of the
    :pyobject: reject_report
    :linenos:
 
-After connecting to the dataset via :func:`gcloud_expenses._get_dataset` (line
-2), :func:`gcloud_expenses.approve_report` starts a transaction (line 3) to
+:func:`gcloud_expenses.approve_report` starts a transaction (line 2) to
 ensure that all changes are performed atomically.  It then checks that a
 report *does* exist already for the given employee ID and report ID, and that
-it is in ``pending`` status, raising an exception if not (lines 4-5).  It then
-updates the status and other metadata on the report itself (lines 9-12).
+it is in ``pending`` status, raising an exception if not (lines 3-7).  It then
+updates the status and other metadata on the report itself (lines 8-11).
