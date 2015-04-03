@@ -8,7 +8,7 @@ from gcloud.datastore.entity import Entity
 from gcloud.datastore.query import Query
 from gcloud.datastore.transaction import Transaction
 from gcloud import storage
-from gcloud.storage.exceptions import NotFound
+from gcloud.exceptions import NotFound
 
 
 BUCKET_NAME = 'gcloud-python-demo-expenses'
