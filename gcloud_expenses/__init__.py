@@ -7,8 +7,8 @@ from gcloud.datastore.key import Key
 from gcloud.datastore.entity import Entity
 from gcloud.datastore.query import Query
 from gcloud.datastore.transaction import Transaction
-from gcloud import storage
 from gcloud.exceptions import NotFound
+from gcloud import storage
 
 
 BUCKET_NAME = 'gcloud-python-demo-expenses'
@@ -39,12 +39,10 @@ class NoSuchReceipt(Exception):
 
 
 def _get_bucket():
-    project = os.environ['GCLOUD_PROJECT_ID']
     try:
-        return storage.get_bucket(BUCKET_NAME, project)
+        return storage.get_bucket(BUCKET_NAME)
     except NotFound:
-        conn = storage.get_connection(project)
-        return conn.create_bucket(BUCKET_NAME)
+        return storage.create_bucket(BUCKET_NAME)
 
 
 def _get_employee(employee_id, create=True):
