@@ -1,7 +1,7 @@
 Example App:  Expense Reporting Using the Google Cloud Python Client
 ====================================================================
 
-This prjoect implements a simple, command-line expense reporting application
+This project implements a simple, command-line expense reporting application
 as an example demonstrating ``gcloud-python``, a Python idiomatic client for
 Google Cloud Platform services.
 
